@@ -1,6 +1,6 @@
 //
 //  GLRenderBuffer.hpp
-//  GPUPower
+//  ObjectiveGL
 //
 //  Created by lingtonke on 2018/10/8.
 //  Copyright © 2018 tencent. All rights reserved.
@@ -13,7 +13,7 @@
 #include "GLObject.h"
 #include "GLContext.h"
 #include <memory>
-namespace GPUPower
+namespace ObjectiveGL
 {
     using namespace std;
     class GLRenderBuffer:public GLObject

@@ -1,6 +1,6 @@
 //
 //  GLContext.h
-//  GPUPower
+//  ObjectiveGL
 //
 //  Created by lingtonke on 2018/10/9.
 //  Copyright © 2018 tencent. All rights reserved.
@@ -11,10 +11,10 @@
 #include <OpenGLES/ES3/glext.h>
 #include "../NodeChain/TaskQueue.h"
 #include "../Error.h"
-#include "../Platform/GPUPowerPlatform.h"
+#include "../Platform/ObjectiveGLPlatform.h"
 #include <iostream>
 
-namespace GPUPower
+namespace ObjectiveGL
 {
     using namespace std;
     class GLTexture;
@@ -31,7 +31,7 @@ namespace GPUPower
     public:
         static shared_ptr<GLShareGroup> create()
         {
-            return GPUPowerIOSBridge::createShareGroup();
+            return ObjectiveGLIOSBridge::createShareGroup();
         }
     };
     
@@ -49,7 +49,7 @@ namespace GPUPower
         
         GLContext(shared_ptr<GLShareGroup> sharegroup):sharegroup(sharegroup),isMainThreadContext(false)
         {
-            context = GPUPowerIOSBridge::createContext(sharegroup.get(), this);
+            context = ObjectiveGLIOSBridge::createContext(sharegroup.get(), this);
             cout<<"GLContext("<<this<<")"<<endl;
         }
         void init()
@@ -57,7 +57,7 @@ namespace GPUPower
             auto s = shared_from_this();
             if (isMainThreadContext)
             {
-                GPUPowerIOSBridge::setContext(this);
+                ObjectiveGLIOSBridge::setContext(this);
                 currentContext() = s;
             }
             else
@@ -65,7 +65,7 @@ namespace GPUPower
                 taskQueue.start();
                 taskQueue.addTask([=]
                                   {
-                                      GPUPowerIOSBridge::setContext(this);
+                                      ObjectiveGLIOSBridge::setContext(this);
                                       currentContext() = s;
                                   });
             }
@@ -99,7 +99,7 @@ namespace GPUPower
         
         ~GLContext()
         {
-            GPUPowerIOSBridge::releaseContext(this);
+            ObjectiveGLIOSBridge::releaseContext(this);
             cout<<"~GLContext("<<this<<")"<<endl;
         }
 
@@ -108,7 +108,7 @@ namespace GPUPower
             bool failed = false;
             if (isMainThreadContext)
             {
-                if (!GPUPowerIOSBridge::isMainThread())
+                if (!ObjectiveGLIOSBridge::isMainThread())
                 {
                     failed = true;
                 }
@@ -129,7 +129,7 @@ namespace GPUPower
             }
             if (failed)
             {
-                throw Error(GPUPowerError_ContextCheckFailed);
+                throw Error(ObjectiveGLError_ContextCheckFailed);
             }
             
         }
@@ -138,7 +138,7 @@ namespace GPUPower
         {
             if (isMainThreadContext)
             {
-                GPUPowerIOSBridge::addMainThreadTask(func);
+                ObjectiveGLIOSBridge::addMainThreadTask(func);
             }
             else
             {
@@ -149,13 +149,13 @@ namespace GPUPower
         {
             if (isMainThreadContext)
             {
-                if (GPUPowerIOSBridge::isMainThread())
+                if (ObjectiveGLIOSBridge::isMainThread())
                 {
                     func();
                 }
                 else
                 {
-                    GPUPowerIOSBridge::addMainThreadTask(func);
+                    ObjectiveGLIOSBridge::addMainThreadTask(func);
                 }
             }
             else

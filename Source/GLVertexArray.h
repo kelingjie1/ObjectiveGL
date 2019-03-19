@@ -1,6 +1,6 @@
 //
 //  GLVertexArray.h
-//  GPUPower
+//  ObjectiveGL
 //
 //  Created by lingtonke on 2018/10/10.
 //  Copyright © 2018 tencent. All rights reserved.
@@ -15,7 +15,7 @@
 #include <vector>
 #include "GLBuffer.h"
 #include "../Error.h"
-namespace GPUPower
+namespace ObjectiveGL
 {
     using namespace std;
     class GLBaseVertex

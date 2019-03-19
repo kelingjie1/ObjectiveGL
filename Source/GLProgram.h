@@ -1,6 +1,6 @@
 //
 //  GLProgram.h
-//  GPUPower
+//  ObjectiveGL
 //
 //  Created by lingtonke on 2018/10/8.
 //  Copyright © 2018 tencent. All rights reserved.
@@ -16,7 +16,7 @@
 #include <string>
 #include <memory>
 #include <fstream>
-namespace GPUPower
+namespace ObjectiveGL
 {
     using namespace std;
     class GLProgram:public GLObject
@@ -61,7 +61,7 @@ namespace GPUPower
                 if (!success)
                 {
                     glGetShaderInfoLog(vertexShaderID, 512, nullptr, infoLog);
-                    throw Error(GPUPowerError_VertexShaderCompileFailed,infoLog);
+                    throw Error(ObjectiveGLError_VertexShaderCompileFailed,infoLog);
                 }
 
                 fragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
@@ -71,7 +71,7 @@ namespace GPUPower
                 if (!success)
                 {
                     glGetShaderInfoLog(fragmentShaderID, 512, nullptr, infoLog);
-                    throw Error(GPUPowerError_FragmentShaderCompileFailed,infoLog);
+                    throw Error(ObjectiveGLError_FragmentShaderCompileFailed,infoLog);
                 }
 
                 programID = glCreateProgram();
@@ -85,7 +85,7 @@ namespace GPUPower
                 if (!linked)
                 {
                     glGetProgramInfoLog(programID, 512, nullptr, infoLog);
-                    throw Error(GPUPowerError_ProgramLinkFailed,infoLog);
+                    throw Error(ObjectiveGLError_ProgramLinkFailed,infoLog);
                 }
             }
             catch (Error error)
@@ -226,7 +226,7 @@ namespace GPUPower
             }
             else
             {
-                throw Error(GPUPowerError_InvalidData);
+                throw Error(ObjectiveGLError_InvalidData);
             }
         }
         

@@ -1,6 +1,6 @@
 //
 //  GLFrameBuffer.h
-//  GPUPower
+//  ObjectiveGL
 //
 //  Created by lingtonke on 2018/10/8.
 //  Copyright © 2018 tencent. All rights reserved.
@@ -13,7 +13,7 @@
 #include "GLObject.h"
 #include <memory>
 #include <vector>
-namespace GPUPower
+namespace ObjectiveGL
 {
     using namespace std;
     class GLFrameBuffer:public GLObject

@@ -1,6 +1,6 @@
 //
 //  GLBuffer.h
-//  GPUPower
+//  ObjectiveGL
 //
 //  Created by lingtonke on 2018/10/10.
 //  Copyright © 2018 tencent. All rights reserved.
@@ -14,7 +14,7 @@
 #include "../Error.h"
 #include "GLObject.h"
 
-namespace GPUPower
+namespace ObjectiveGL
 {
     using namespace std;
     template<class T>
@@ -74,7 +74,7 @@ namespace GPUPower
             if (!data)
             {
                 GLenum error = glGetError();
-                throw Error(GPUPowerError_MapBufferFailed,error);
+                throw Error(ObjectiveGLError_MapBufferFailed,error);
             }
             glBindBuffer(bufferType, 0);
             checkError();
@@ -88,7 +88,7 @@ namespace GPUPower
             if(!glUnmapBuffer(bufferType))
             {
                 GLenum error = glGetError();
-                throw Error(GPUPowerError_UnMapBufferFailed,error);
+                throw Error(ObjectiveGLError_UnMapBufferFailed,error);
             }
             glBindBuffer(bufferType, 0);
             checkError();

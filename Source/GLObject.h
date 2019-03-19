@@ -1,6 +1,6 @@
 //
 //  GLObject.h
-//  GPUPower
+//  ObjectiveGL
 //
 //  Created by lingtonke on 2018/10/11.
 //  Copyright © 2018 tencent. All rights reserved.
@@ -8,7 +8,7 @@
 #pragma once
 #include "GLContext.h"
 #include <memory>
-namespace GPUPower
+namespace ObjectiveGL
 {
     using namespace std;
     class GLObject
@@ -46,7 +46,7 @@ namespace GPUPower
             if (error)
             {
                 //GL_NO_ERROR;
-                throw Error(GPUPowerError_GLError,error);
+                throw Error(ObjectiveGLError_GLError,error);
             }
         }
         
