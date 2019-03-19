@@ -20,6 +20,14 @@
 
 /* Begin PBXFileReference section */
 		074D4B5622410AF900EB9304 /* libObjectiveGL.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libObjectiveGL.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		074D4B6322410C9700EB9304 /* GLFrameBuffer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GLFrameBuffer.h; sourceTree = "<group>"; };
+		074D4B6422410C9700EB9304 /* GLBuffer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GLBuffer.h; sourceTree = "<group>"; };
+		074D4B6522410C9700EB9304 /* GLObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GLObject.h; sourceTree = "<group>"; };
+		074D4B6622410C9700EB9304 /* GLContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GLContext.h; sourceTree = "<group>"; };
+		074D4B6722410C9700EB9304 /* GLVertexArray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GLVertexArray.h; sourceTree = "<group>"; };
+		074D4B6822410C9700EB9304 /* GLRenderBuffer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GLRenderBuffer.h; sourceTree = "<group>"; };
+		074D4B6922410C9700EB9304 /* GLTexture.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GLTexture.h; sourceTree = "<group>"; };
+		074D4B6A22410C9700EB9304 /* GLProgram.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GLProgram.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -36,6 +44,7 @@
 		074D4B4D22410AF900EB9304 = {
 			isa = PBXGroup;
 			children = (
+				074D4B6222410C9700EB9304 /* Source */,
 				074D4B5722410AF900EB9304 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -46,6 +55,22 @@
 				074D4B5622410AF900EB9304 /* libObjectiveGL.a */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		074D4B6222410C9700EB9304 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				074D4B6322410C9700EB9304 /* GLFrameBuffer.h */,
+				074D4B6422410C9700EB9304 /* GLBuffer.h */,
+				074D4B6522410C9700EB9304 /* GLObject.h */,
+				074D4B6622410C9700EB9304 /* GLContext.h */,
+				074D4B6722410C9700EB9304 /* GLVertexArray.h */,
+				074D4B6822410C9700EB9304 /* GLRenderBuffer.h */,
+				074D4B6922410C9700EB9304 /* GLTexture.h */,
+				074D4B6A22410C9700EB9304 /* GLProgram.h */,
+			);
+			name = Source;
+			path = ../Source;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
