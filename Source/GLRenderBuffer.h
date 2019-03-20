@@ -16,19 +16,20 @@
 namespace ObjectiveGL
 {
     using namespace std;
-    class GLRenderBuffer:public GLObject
+    class GLRenderBuffer:public GLShareObject
     {
-        GLRenderBuffer(shared_ptr<GLContext> context):GLObject(context){}
+        friend class GLContext;
+    protected:
+        GLRenderBuffer()
+        {
+            glGenRenderbuffers(1, &renderBufferID);
+        }
     public:
         GLuint renderBufferID;
-        static shared_ptr<GLRenderBuffer> create(shared_ptr<GLContext> context)
+        
+        ~GLRenderBuffer()
         {
-            return shared_ptr<GLRenderBuffer>(new GLRenderBuffer(context));
+            glDeleteRenderbuffers(1, &renderBufferID);
         }
-        virtual void init()
-        {
-            GLObject::init();
-        }
-
     };
 }

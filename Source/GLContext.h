@@ -17,7 +17,15 @@ namespace ObjectiveGL
     class GLTexture;
     class GLFrameBuffer;
     class GLRenderBuffer;
+    
+    template<class T>
+    class GLVertexBuffer;
+    
+    template<class T>
+    class GLElementBuffer;
     class GLProgram;
+    
+    class GLBaseVertex;
     template<class vboType,class eboType>
     class GLVertexArray;
     
@@ -37,61 +45,35 @@ namespace ObjectiveGL
     class GLContext:public enable_shared_from_this<GLContext>
     {
         
-        static weak_ptr<GLContext> &currentContext()
-        {
-            static thread_local weak_ptr<GLContext> context;
-            return context;
-        };
+        static shared_ptr<GLContext> &currentContext();
         
-        GLContext(shared_ptr<GLShareGroup> sharegroup):sharegroup(sharegroup)
-        {
-            context = GLPlatform::createContext(this,sharegroup.get());
-            cout<<"GLContext("<<this<<")"<<endl;
-        }
-        void init()
-        {
-            auto s = shared_from_this();
-            GLPlatform::setContext(this);
-            currentContext() = s;
-        }
+        GLContext(shared_ptr<GLShareGroup> sharegroup);
+        void init();
     public:
         shared_ptr<GLShareGroup> sharegroup;
         void *context;
-        static shared_ptr<GLContext> current()
-        {
-            return currentContext().lock();
-        }
+        static shared_ptr<GLContext> current();
         
-        static shared_ptr<GLContext> create(shared_ptr<GLShareGroup> sharegroup = nullptr)
-        {
-            auto context = shared_ptr<GLContext>(new GLContext(sharegroup));
-            context->init();
-            return context;
-        }
+        static shared_ptr<GLContext> create(shared_ptr<GLShareGroup> sharegroup = nullptr);
         
-        ~GLContext()
-        {
-            GLPlatform::releaseContext(this->context);
-            cout<<"~GLContext("<<this<<")"<<endl;
-        }
+        shared_ptr<GLTexture> createTexture();
+        
+        shared_ptr<GLFrameBuffer> createFrameBuffer();
+        
+        shared_ptr<GLRenderBuffer> createRenderBuffer();
+        
+        shared_ptr<GLProgram> createProgram();
+        
+        template<class vboType,class eboType>
+        shared_ptr<GLVertexArray<vboType,eboType>> createVertexArray();
+        
+        template<class T>
+        shared_ptr<GLElementBuffer<T>> createElementBuffer();
+        
+        template<class T>
+        shared_ptr<GLVertexBuffer<T>> createVertexBuffer();
+        ~GLContext();
 
-        void check(bool share=false)
-        {
-            bool failed = false;
-            if(share&&share&&sharegroup&&GLContext::current()->sharegroup == sharegroup)
-            {
-                //sharegroup
-            }
-            else if (GLContext::current().get() != this)
-            {
-                failed = true;
-            }
-            
-            if (failed)
-            {
-                throw GLError(ObjectiveGLError_ContextCheckFailed);
-            }
-            
-        }
+        void check(bool share=false);
     };
 }

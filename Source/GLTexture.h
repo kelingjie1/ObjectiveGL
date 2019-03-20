@@ -14,39 +14,28 @@
 
 namespace ObjectiveGL
 {
-    class GLTexture:public GLObject
+    class GLTexture:public GLShareObject
     {
+        friend class GLContext;
     protected:
-        GLTexture(shared_ptr<GLContext> context):GLObject(context){}
+        GLTexture()
+        {
+            glGenTextures(1, &textureID);
+        }
     public:
+        
         GLuint textureID;
         
-        static shared_ptr<GLTexture> create(shared_ptr<GLContext> context)
+        ~GLTexture()
         {
-            return shared_ptr<GLTexture>(new GLTexture(context));
+            check();
+            glDeleteTextures(1, &textureID);
         }
         
-        
-        virtual void init()
-        {
-            auto c = context.lock();
-            c->check(true);
-            glGenTextures(1, &textureID);
-            ready = true;
-        }
-
-        virtual void cleanup()
-        {
-            auto c = context.lock();
-            c->check(true);
-            GLuint tex = textureID;
-            glDeleteTextures(1, &tex);
-            
-        }
 
         void setImageData(const GLvoid *pixels, GLsizei width,GLsizei height,GLenum internalformat=GL_RGBA,GLenum format=GL_BGRA)
         {
-            check(true);
+            check();
             glBindTexture(GL_TEXTURE_2D, textureID);
             checkError();
             if (pixels)
@@ -62,11 +51,17 @@ namespace ObjectiveGL
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         }
 
-        void activeAndBind(GLuint index)
+        void active(GLuint index)
         {
-            check(true);
+            check();
             glActiveTexture(GL_TEXTURE0+index);
             checkError();
+            
+        }
+        
+        void bind()
+        {
+            check();
             glBindTexture(GL_TEXTURE_2D, textureID);
             checkError();
         }

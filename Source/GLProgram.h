@@ -8,37 +8,34 @@
 
 #pragma once
 
-#include <OpenGLES/ES3/gl.h>
-#include <OpenGLES/ES3/glext.h>
+#include "GLPlatform.h"
 #include "GLUtil.h"
 #include "GLError.h"
 #include "GLObject.h"
 #include <string>
 #include <memory>
 #include <fstream>
+#include <vector>
+
 namespace ObjectiveGL
 {
     using namespace std;
     class GLProgram:public GLObject
     {
-        
+        friend class GLContext;
+    protected:
         string vertexShaderStr;
         string fragmentShaderStr;
-        GLProgram(shared_ptr<GLContext> context): GLObject(context),programID(0),vertexShaderID(0),fragmentShaderID(0){}
+        GLProgram(): programID(0),vertexShaderID(0),fragmentShaderID(0){}
     public:
         GLuint programID;
         GLuint vertexShaderID;
         GLuint fragmentShaderID;
-        static shared_ptr<GLProgram> create(shared_ptr<GLContext> context)
-        {
-            return shared_ptr<GLProgram>(new GLProgram(context));
-        }
         void loadFromFile(string vertexShaderFile, string fragmentShaderFile)
         {
             auto vs = Util::readFile(vertexShaderFile);
             auto fs = Util::readFile(fragmentShaderFile);
             setShaderString(vs,fs);
-
         }
         void setShaderString(string vs, string fs)
         {
@@ -108,8 +105,7 @@ namespace ObjectiveGL
         
         virtual void clearup()
         {
-            auto c = context.lock();
-            c->check();
+            check();
             GLuint vs = vertexShaderID;
             GLuint fs = fragmentShaderID;
             GLuint p = programID;

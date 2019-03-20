@@ -17,23 +17,24 @@ namespace ObjectiveGL
 {
     using namespace std;
     template<class T>
-    class GLBuffer:public GLObject
+    class GLBuffer:public GLShareObject
     {
     protected:
-        GLBuffer(shared_ptr<GLContext> context):GLObject(context),bufferID(0),size(0),count(0),bufferType(0){}
+        GLBuffer():bufferID(0),size(0),count(0),bufferType(0)
+        {
+            glGenBuffers(1, &bufferID);
+            checkError();
+        }
+        ~GLBuffer()
+        {
+            check();
+            glDeleteBuffers(1, &bufferID);
+        }
         GLenum bufferType;
     public:
         GLuint bufferID;
         GLsizei size;
         GLsizei count;
-        
-
-        virtual void init()
-        {
-            GLObject::init();
-            glGenBuffers(1, &bufferID);
-            checkError();
-        }
         
         void alloc(GLsizei count,T *data=nullptr,GLenum usage=GL_STREAM_DRAW)
         {
@@ -49,12 +50,10 @@ namespace ObjectiveGL
         }
         void accessData(function<void(T *data)> func,GLuint offset=0,GLuint length=0,GLbitfield access=GL_MAP_READ_BIT|GL_MAP_WRITE_BIT)
         {
-            auto c = context.lock();
-            c->checkAndAsyncTask([&]{
-                auto data = lock(offset,length,access);
-                func(data);
-                unlock();
-            });
+            check();
+            auto data = lock(offset,length,access);
+            func(data);
+            unlock();
         }
         T *lock(GLuint offset=0,GLuint length=0,GLbitfield access=GL_MAP_READ_BIT|GL_MAP_WRITE_BIT)
         {
@@ -85,29 +84,25 @@ namespace ObjectiveGL
     template<class T>
     class GLVertexBuffer:public GLBuffer<T>
     {
+        friend class GLContext;
     protected:
         GLVertexBuffer(shared_ptr<GLContext> context):GLBuffer<T>(context)
         {
             this->bufferType = GL_ARRAY_BUFFER;
         }
     public:
-        static shared_ptr<GLVertexBuffer> create(shared_ptr<GLContext> context)
-        {
-            return shared_ptr<GLVertexBuffer>(new GLVertexBuffer(context));
-        }
+        
     };
     template<class T>
     class GLElementBuffer:public GLBuffer<T>
     {
+        friend class GLContext;
     protected:
         GLElementBuffer(shared_ptr<GLContext> context):GLBuffer<T>(context)
         {
             this->bufferType = GL_ELEMENT_ARRAY_BUFFER;
         }
     public:
-        static shared_ptr<GLElementBuffer> create(shared_ptr<GLContext> context)
-        {
-            return shared_ptr<GLElementBuffer>(new GLElementBuffer(context));
-        }
+        
     };
 }

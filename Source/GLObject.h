@@ -15,10 +15,9 @@ namespace ObjectiveGL
     class GLObject
     {
     public:
-        bool ready;
-        weak_ptr<GLContext> context;
+        shared_ptr<GLContext> context;
     protected:
-        GLObject(shared_ptr<GLContext> context):context(weak_ptr<GLContext>(context)),ready(false)
+        GLObject():context(shared_ptr<GLContext>(GLContext::current()))
         {
 
         }
@@ -28,17 +27,10 @@ namespace ObjectiveGL
         }
 
     public:
-        virtual void init()
+        
+        void check()
         {
-            auto c = context.lock();
-            c->check();
-            ready = true;
-        }
-        void check(bool share=false)
-        {
-            auto c = context.lock();
-            c->check(share);
-            checkInit();
+            context->check(false);
         }
         
         void checkError()
@@ -49,18 +41,15 @@ namespace ObjectiveGL
                 throw GLError(ObjectiveGLError_GLError,error);
             }
         }
-        
-        void checkInit()
-        {
-            if (!ready)
-            {
-                init();
-            }
-        }
-        virtual void cleanup()
-        {
-            
-        }
 
+    };
+    
+    class GLShareObject:public GLObject
+    {
+    public:
+        void check()
+        {
+            context->check(true);
+        }
     };
 }

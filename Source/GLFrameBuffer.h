@@ -16,24 +16,22 @@
 namespace ObjectiveGL
 {
     using namespace std;
-    class GLFrameBuffer:public GLObject
+    class GLFrameBuffer:public GLShareObject
     {
-        GLFrameBuffer(shared_ptr<GLContext> context):GLObject(context){};
-    public:
-        GLuint frameBufferID;
-        static shared_ptr<GLFrameBuffer> create(shared_ptr<GLContext> context)
-        {
-            return shared_ptr<GLFrameBuffer>(new GLFrameBuffer(context));
-        }
-        virtual void init()
+        friend class GLContext;
+    protected:
+        GLFrameBuffer()
         {
             glGenBuffers(1, &frameBufferID);
         }
-        virtual void cleanup()
+    public:
+        GLuint frameBufferID;
+        
+        ~GLFrameBuffer()
         {
+            context->check();
             glDeleteBuffers(1, &frameBufferID);
         }
-        
         
         void setColorTextures(vector<shared_ptr<GLTexture> > textures)
         {
