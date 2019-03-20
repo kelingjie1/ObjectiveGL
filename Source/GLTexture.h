@@ -40,9 +40,7 @@ namespace ObjectiveGL
             auto c = context.lock();
             c->check(true);
             GLuint tex = textureID;
-            c->checkAndAsyncTask([=]{
-                glDeleteTextures(1, &tex);
-            });
+            glDeleteTextures(1, &tex);
             
         }
 

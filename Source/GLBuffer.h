@@ -8,10 +8,9 @@
 
 #pragma once
 
-#include <OpenGLES/ES3/gl.h>
-#include <OpenGLES/ES3/glext.h>
+#include "GLPlatform.h"
 #include <string>
-#include "../Error.h"
+#include "GLError.h"
 #include "GLObject.h"
 
 namespace ObjectiveGL
@@ -34,10 +33,6 @@ namespace ObjectiveGL
             GLObject::init();
             glGenBuffers(1, &bufferID);
             checkError();
-            if (!bufferID)
-            {
-                throw Error();
-            }
         }
         
         void alloc(GLsizei count,T *data=nullptr,GLenum usage=GL_STREAM_DRAW)
@@ -71,11 +66,7 @@ namespace ObjectiveGL
             glBindBuffer(bufferType, bufferID);
             checkError();
             void *data = glMapBufferRange(bufferType, offset, length, access);
-            if (!data)
-            {
-                GLenum error = glGetError();
-                throw Error(ObjectiveGLError_MapBufferFailed,error);
-            }
+            checkError();
             glBindBuffer(bufferType, 0);
             checkError();
             return (T*)data;
@@ -85,11 +76,8 @@ namespace ObjectiveGL
             check();
             glBindBuffer(bufferType, bufferID);
             checkError();
-            if(!glUnmapBuffer(bufferType))
-            {
-                GLenum error = glGetError();
-                throw Error(ObjectiveGLError_UnMapBufferFailed,error);
-            }
+            glUnmapBuffer(bufferType);
+            checkError();
             glBindBuffer(bufferType, 0);
             checkError();
         }

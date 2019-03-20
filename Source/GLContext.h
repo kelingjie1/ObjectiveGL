@@ -7,11 +7,8 @@
 //
 #pragma once
 
-#include <OpenGLES/ES3/gl.h>
-#include <OpenGLES/ES3/glext.h>
-#include "../NodeChain/TaskQueue.h"
-#include "../Error.h"
-#include "../Platform/ObjectiveGLPlatform.h"
+#include "GLPlatform.h"
+#include "GLError.h"
 #include <iostream>
 
 namespace ObjectiveGL
@@ -31,7 +28,7 @@ namespace ObjectiveGL
     public:
         static shared_ptr<GLShareGroup> create()
         {
-            return ObjectiveGLIOSBridge::createShareGroup();
+            return GLPlatform::createShareGroup();
         }
     };
     
@@ -39,7 +36,6 @@ namespace ObjectiveGL
     
     class GLContext:public enable_shared_from_this<GLContext>
     {
-        NodeChain::TaskQueue taskQueue;
         
         static weak_ptr<GLContext> &currentContext()
         {
@@ -47,32 +43,18 @@ namespace ObjectiveGL
             return context;
         };
         
-        GLContext(shared_ptr<GLShareGroup> sharegroup):sharegroup(sharegroup),isMainThreadContext(false)
+        GLContext(shared_ptr<GLShareGroup> sharegroup):sharegroup(sharegroup)
         {
-            context = ObjectiveGLIOSBridge::createContext(sharegroup.get(), this);
+            context = GLPlatform::createContext(this,sharegroup.get());
             cout<<"GLContext("<<this<<")"<<endl;
         }
         void init()
         {
             auto s = shared_from_this();
-            if (isMainThreadContext)
-            {
-                ObjectiveGLIOSBridge::setContext(this);
-                currentContext() = s;
-            }
-            else
-            {
-                taskQueue.start();
-                taskQueue.addTask([=]
-                                  {
-                                      ObjectiveGLIOSBridge::setContext(this);
-                                      currentContext() = s;
-                                  });
-            }
-            
+            GLPlatform::setContext(this);
+            currentContext() = s;
         }
     public:
-        bool isMainThreadContext;
         shared_ptr<GLShareGroup> sharegroup;
         void *context;
         static shared_ptr<GLContext> current()
@@ -87,88 +69,29 @@ namespace ObjectiveGL
             return context;
         }
         
-        static shared_ptr<GLContext> createMainThreadContext(shared_ptr<GLShareGroup> sharegroup = nullptr)
-        {
-            auto context = shared_ptr<GLContext>(new GLContext(sharegroup));
-            context->isMainThreadContext = true;
-            context->init();
-            return context;
-        }
-        
-        
-        
         ~GLContext()
         {
-            ObjectiveGLIOSBridge::releaseContext(this);
+            GLPlatform::releaseContext(this->context);
             cout<<"~GLContext("<<this<<")"<<endl;
         }
 
         void check(bool share=false)
         {
             bool failed = false;
-            if (isMainThreadContext)
+            if(share&&share&&sharegroup&&GLContext::current()->sharegroup == sharegroup)
             {
-                if (!ObjectiveGLIOSBridge::isMainThread())
-                {
-                    failed = true;
-                }
+                //sharegroup
             }
-            else
+            else if (GLContext::current().get() != this)
             {
-                if (this_thread::get_id() != taskQueue.getid())
-                {
-                    if(share&&sharegroup&&GLContext::current()->sharegroup == sharegroup)
-                    {
-                        //sharegroup
-                    }
-                    else
-                    {
-                        failed = true;
-                    }
-                }
-            }
-            if (failed)
-            {
-                throw Error(ObjectiveGLError_ContextCheckFailed);
+                failed = true;
             }
             
-        }
-
-        void asyncTask(function<void()> func)
-        {
-            if (isMainThreadContext)
+            if (failed)
             {
-                ObjectiveGLIOSBridge::addMainThreadTask(func);
+                throw GLError(ObjectiveGLError_ContextCheckFailed);
             }
-            else
-            {
-                taskQueue.addTask(func);
-            }
-        }
-        void checkAndAsyncTask(function<void()> func)
-        {
-            if (isMainThreadContext)
-            {
-                if (ObjectiveGLIOSBridge::isMainThread())
-                {
-                    func();
-                }
-                else
-                {
-                    ObjectiveGLIOSBridge::addMainThreadTask(func);
-                }
-            }
-            else
-            {
-                if (this_thread::get_id() == taskQueue.getid())
-                {
-                    func();
-                }
-                else
-                {
-                    taskQueue.addTask(func);
-                }
-            }
+            
         }
     };
 }

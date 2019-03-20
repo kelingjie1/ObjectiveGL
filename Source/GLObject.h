@@ -7,6 +7,7 @@
 //
 #pragma once
 #include "GLContext.h"
+#include "GLPlatform.h"
 #include <memory>
 namespace ObjectiveGL
 {
@@ -45,8 +46,7 @@ namespace ObjectiveGL
             auto error = glGetError();
             if (error)
             {
-                //GL_NO_ERROR;
-                throw Error(ObjectiveGLError_GLError,error);
+                throw GLError(ObjectiveGLError_GLError,error);
             }
         }
         

@@ -14,7 +14,7 @@
 #include <memory>
 #include <vector>
 #include "GLBuffer.h"
-#include "../Error.h"
+#include "GLError.h"
 namespace ObjectiveGL
 {
     using namespace std;
@@ -62,10 +62,7 @@ namespace ObjectiveGL
         {
             GLObject::init();
             glGenVertexArrays(1, &vao);
-            if (!vao)
-            {
-                throw Error();
-            }
+            checkError();
         }
         
         void setVertexBuffer(shared_ptr<GLVertexBuffer<vboType>> vertexbuffer)

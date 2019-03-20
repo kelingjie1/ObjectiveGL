@@ -10,8 +10,8 @@
 
 #include <OpenGLES/ES3/gl.h>
 #include <OpenGLES/ES3/glext.h>
-#include "../Error.h"
-#include "../Util.h"
+#include "GLUtil.h"
+#include "GLError.h"
 #include "GLObject.h"
 #include <string>
 #include <memory>
@@ -61,7 +61,7 @@ namespace ObjectiveGL
                 if (!success)
                 {
                     glGetShaderInfoLog(vertexShaderID, 512, nullptr, infoLog);
-                    throw Error(ObjectiveGLError_VertexShaderCompileFailed,infoLog);
+                    throw GLError(ObjectiveGLError_VertexShaderCompileFailed,infoLog);
                 }
 
                 fragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
@@ -71,7 +71,7 @@ namespace ObjectiveGL
                 if (!success)
                 {
                     glGetShaderInfoLog(fragmentShaderID, 512, nullptr, infoLog);
-                    throw Error(ObjectiveGLError_FragmentShaderCompileFailed,infoLog);
+                    throw GLError(ObjectiveGLError_FragmentShaderCompileFailed,infoLog);
                 }
 
                 programID = glCreateProgram();
@@ -85,10 +85,10 @@ namespace ObjectiveGL
                 if (!linked)
                 {
                     glGetProgramInfoLog(programID, 512, nullptr, infoLog);
-                    throw Error(ObjectiveGLError_ProgramLinkFailed,infoLog);
+                    throw GLError(ObjectiveGLError_ProgramLinkFailed,infoLog);
                 }
             }
-            catch (Error error)
+            catch (GLError error)
             {
                 if (vertexShaderID)
                 {
@@ -109,26 +109,22 @@ namespace ObjectiveGL
         virtual void clearup()
         {
             auto c = context.lock();
+            c->check();
             GLuint vs = vertexShaderID;
             GLuint fs = fragmentShaderID;
             GLuint p = programID;
-            c->checkAndAsyncTask([=]
+            if (vs)
             {
-                if (vs)
-                {
-                    glDeleteShader(vs);
-                }
-                if (fs)
-                {
-                    glDeleteShader(fs);
-                }
-                if (p)
-                {
-                    glDeleteProgram(p);
-                }
-            });
-            
-            
+                glDeleteShader(vs);
+            }
+            if (fs)
+            {
+                glDeleteShader(fs);
+            }
+            if (p)
+            {
+                glDeleteProgram(p);
+            }
         }
         
         void use()
@@ -226,7 +222,7 @@ namespace ObjectiveGL
             }
             else
             {
-                throw Error(ObjectiveGLError_InvalidData);
+                throw GLError(ObjectiveGLError_InvalidData);
             }
         }
         
