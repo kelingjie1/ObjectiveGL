@@ -12,23 +12,23 @@
 #include "GLObject.h"
 #include "GLContext.h"
 #include <memory>
-namespace ObjectiveGL
-{
-    using namespace std;
-    class GLRenderBuffer:public GLShareObject
-    {
-        friend class GLContext;
-    protected:
-        GLRenderBuffer()
-        {
-            glGenRenderbuffers(1, &renderBufferID);
-        }
-    public:
-        GLuint renderBufferID;
-        
-        ~GLRenderBuffer()
-        {
-            glDeleteRenderbuffers(1, &renderBufferID);
-        }
-    };
+
+namespace ObjectiveGL {
+using namespace std;
+
+class GLRenderBuffer : public GLShareObject {
+    friend class GLContext;
+
+protected:
+    GLRenderBuffer() {
+        glGenRenderbuffers(1, &renderBufferID);
+    }
+
+public:
+    GLuint renderBufferID;
+
+    ~GLRenderBuffer() {
+        glDeleteRenderbuffers(1, &renderBufferID);
+    }
+};
 }

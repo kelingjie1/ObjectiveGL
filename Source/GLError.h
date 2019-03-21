@@ -12,25 +12,33 @@
 #include <string>
 
 namespace ObjectiveGL {
-    using namespace std;
-    enum ObjectiveGLError {
-        ObjectiveGLError_ContextCheckFailed,
-        ObjectiveGLError_GLError,
-        ObjectiveGLError_InvalidType,
-        ObjectiveGLError_VertexShaderCompileFailed,
-        ObjectiveGLError_FragmentShaderCompileFailed,
-        ObjectiveGLError_ProgramLinkFailed,
-        ObjectiveGLError_InvalidData,
+using namespace std;
+enum ObjectiveGLError {
+    ObjectiveGLError_ContextCheckFailed,
+    ObjectiveGLError_GLError,
+    ObjectiveGLError_InvalidType,
+    ObjectiveGLError_VertexShaderCompileFailed,
+    ObjectiveGLError_FragmentShaderCompileFailed,
+    ObjectiveGLError_ProgramLinkFailed,
+    ObjectiveGLError_InvalidData,
+};
+
+class GLError : exception {
+public:
+    ObjectiveGLError code;
+    GLenum glcode;
+    string log;
+
+    GLError(ObjectiveGLError code, GLenum glcode = GL_NO_ERROR) noexcept {
+        this->code = code;
+        this->glcode = glcode;
     };
-    
-    class GLError : exception {
-    public:
-        ObjectiveGLError code;
-        GLenum glcode;
-        string log;
-        GLError(ObjectiveGLError code,GLenum glcode = GL_NO_ERROR) noexcept {this->code = code;this->glcode = glcode;};
-        GLError(ObjectiveGLError code,string log) noexcept {this->code = code;this->log = log;};
-        
-        virtual const char* what() const noexcept {return log.c_str();}
+
+    GLError(ObjectiveGLError code, string log) noexcept {
+        this->code = code;
+        this->log = log;
     };
+
+    virtual const char *what() const noexcept { return log.c_str(); }
+};
 }

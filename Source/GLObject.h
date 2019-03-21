@@ -6,50 +6,45 @@
 //  Copyright © 2018 tencent. All rights reserved.
 //
 #pragma once
+
 #include "GLContext.h"
 #include "GLPlatform.h"
 #include <memory>
-namespace ObjectiveGL
-{
-    using namespace std;
-    class GLObject
-    {
-    public:
-        shared_ptr<GLContext> context;
-    protected:
-        GLObject():context(shared_ptr<GLContext>(GLContext::current()))
-        {
 
-        }
-        virtual ~GLObject()
-        {
-            
-        }
+namespace ObjectiveGL {
+using namespace std;
 
-    public:
-        
-        void check()
-        {
-            context->check(false);
-        }
-        
-        void checkError()
-        {
-            auto error = glGetError();
-            if (error)
-            {
-                throw GLError(ObjectiveGLError_GLError,error);
-            }
-        }
+class GLObject {
+public:
+    shared_ptr<GLContext> context;
+protected:
+    GLObject() : context(shared_ptr<GLContext>(GLContext::current())) {
 
-    };
-    
-    class GLShareObject:public GLObject
-    {
-    public:
-        void check()
-        {
-            context->check(true);
+    }
+
+    virtual ~GLObject() {
+
+    }
+
+public:
+
+    void check() {
+        context->check(false);
+    }
+
+    void checkError() {
+        auto error = glGetError();
+        if (error) {
+            throw GLError(ObjectiveGLError_GLError, error);
         }
-    };
+    }
+
+};
+
+class GLShareObject : public GLObject {
+public:
+    void check() {
+        context->check(true);
+    }
+};
 }

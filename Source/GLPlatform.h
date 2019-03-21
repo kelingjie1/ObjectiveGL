@@ -14,6 +14,7 @@
 #include <OpenGLES/ES3/glext.h>
 
 #else
+
 #include <GLES3/gl3.h>
 
 #endif
@@ -21,16 +22,21 @@
 #include <memory>
 
 namespace ObjectiveGL {
-    using namespace std;
-    
-    class GLShareGroup;
-    class GLContext;
-    class GLPlatform {
-    public:
-        static shared_ptr<GLShareGroup> createShareGroup();
-        static void *createContext(GLContext *context,GLShareGroup *shareGroup);
-        static void setContext(void *context);
-        static void releaseContext(void *context);
-        
-    };
+using namespace std;
+
+class GLShareGroup;
+
+class GLContext;
+
+class GLPlatform {
+public:
+    static shared_ptr<GLShareGroup> createShareGroup();
+
+    static void *createContext(GLContext *context, GLShareGroup *shareGroup);
+
+    static void setContext(void *context);
+
+    static void releaseContext(void *context);
+
+};
 }
