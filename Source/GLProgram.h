@@ -65,6 +65,68 @@ namespace ObjectiveGL
                 glUniform1i(location, i);
             }
         }
+        
+        void compile()
+        {
+            GLint success;
+            GLchar infoLog[512];
+            
+            const GLchar *const vsStr = vertexShaderStr.c_str();
+            const GLchar *const fsStr = fragmentShaderStr.c_str();
+            try
+            {
+                vertexShaderID = glCreateShader(GL_VERTEX_SHADER);
+                glShaderSource(vertexShaderID, 1, &vsStr, nullptr);
+                glCompileShader(vertexShaderID);
+                glGetShaderiv(vertexShaderID, GL_COMPILE_STATUS, &success);
+                if (!success)
+                {
+                    glGetShaderInfoLog(vertexShaderID, 512, nullptr, infoLog);
+                    throw GLError(ObjectiveGLError_VertexShaderCompileFailed,infoLog);
+                }
+                
+                fragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
+                glShaderSource(fragmentShaderID, 1, &fsStr, nullptr);
+                glCompileShader(fragmentShaderID);
+                glGetShaderiv(fragmentShaderID, GL_COMPILE_STATUS, &success);
+                if (!success)
+                {
+                    glGetShaderInfoLog(fragmentShaderID, 512, nullptr, infoLog);
+                    throw GLError(ObjectiveGLError_FragmentShaderCompileFailed,infoLog);
+                }
+                
+                programID = glCreateProgram();
+                glAttachShader(programID, vertexShaderID);
+                glAttachShader(programID, fragmentShaderID);
+                
+                GLint linked;
+                
+                glLinkProgram(programID);
+                glGetProgramiv(programID, GL_LINK_STATUS, &linked);
+                if (!linked)
+                {
+                    glGetProgramInfoLog(programID, 512, nullptr, infoLog);
+                    throw GLError(ObjectiveGLError_ProgramLinkFailed,infoLog);
+                }
+            }
+            catch (GLError error)
+            {
+                if (vertexShaderID)
+                {
+                    glDeleteShader(vertexShaderID);
+                }
+                if (fragmentShaderID)
+                {
+                    glDeleteShader(fragmentShaderID);
+                }
+                if (programID)
+                {
+                    glDeleteProgram(programID);
+                }
+                throw error;
+            }
+        }
+        
     public:
         GLuint programID;
         GLuint vertexShaderID;
@@ -100,67 +162,9 @@ namespace ObjectiveGL
         {
             vertexShaderStr = vs;
             fragmentShaderStr = fs;
+            compile();
         }
-        virtual void init()
-        {
-            GLint success;
-            GLchar infoLog[512];
-
-            const GLchar *const vsStr = vertexShaderStr.c_str();
-            const GLchar *const fsStr = fragmentShaderStr.c_str();
-            try
-            {
-                vertexShaderID = glCreateShader(GL_VERTEX_SHADER);
-                glShaderSource(vertexShaderID, 1, &vsStr, nullptr);
-                glCompileShader(vertexShaderID);
-                glGetShaderiv(vertexShaderID, GL_COMPILE_STATUS, &success);
-                if (!success)
-                {
-                    glGetShaderInfoLog(vertexShaderID, 512, nullptr, infoLog);
-                    throw GLError(ObjectiveGLError_VertexShaderCompileFailed,infoLog);
-                }
-
-                fragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
-                glShaderSource(fragmentShaderID, 1, &fsStr, nullptr);
-                glCompileShader(fragmentShaderID);
-                glGetShaderiv(fragmentShaderID, GL_COMPILE_STATUS, &success);
-                if (!success)
-                {
-                    glGetShaderInfoLog(fragmentShaderID, 512, nullptr, infoLog);
-                    throw GLError(ObjectiveGLError_FragmentShaderCompileFailed,infoLog);
-                }
-
-                programID = glCreateProgram();
-                glAttachShader(programID, vertexShaderID);
-                glAttachShader(programID, fragmentShaderID);
-
-                GLint linked;
-
-                glLinkProgram(programID);
-                glGetProgramiv(programID, GL_LINK_STATUS, &linked);
-                if (!linked)
-                {
-                    glGetProgramInfoLog(programID, 512, nullptr, infoLog);
-                    throw GLError(ObjectiveGLError_ProgramLinkFailed,infoLog);
-                }
-            }
-            catch (GLError error)
-            {
-                if (vertexShaderID)
-                {
-                    glDeleteShader(vertexShaderID);
-                }
-                if (fragmentShaderID)
-                {
-                    glDeleteShader(fragmentShaderID);
-                }
-                if (programID)
-                {
-                    glDeleteProgram(programID);
-                }
-                throw error;
-            }
-        }
+        
         
         void use()
         {

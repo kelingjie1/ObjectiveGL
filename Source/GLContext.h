@@ -48,13 +48,15 @@ namespace ObjectiveGL
         static shared_ptr<GLContext> &currentContext();
         
         GLContext(shared_ptr<GLShareGroup> sharegroup);
-        void init();
     public:
         shared_ptr<GLShareGroup> sharegroup;
         void *context;
+        
         static shared_ptr<GLContext> current();
         
         static shared_ptr<GLContext> create(shared_ptr<GLShareGroup> sharegroup = nullptr);
+        
+        void setCurrent();
         
         shared_ptr<GLTexture> createTexture();
         

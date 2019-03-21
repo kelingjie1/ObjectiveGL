@@ -18,7 +18,7 @@ GLContext::GLContext(shared_ptr<GLShareGroup> sharegroup):sharegroup(sharegroup)
     context = GLPlatform::createContext(this,sharegroup.get());
     cout<<"GLContext("<<this<<")"<<endl;
 }
-void GLContext::init()
+void GLContext::setCurrent()
 {
     auto s = shared_from_this();
     GLPlatform::setContext(this);
@@ -32,7 +32,6 @@ shared_ptr<GLContext> GLContext::current()
 shared_ptr<GLContext> GLContext::create(shared_ptr<GLShareGroup> sharegroup)
 {
     auto context = shared_ptr<GLContext>(new GLContext(sharegroup));
-    context->init();
     return context;
 }
 
