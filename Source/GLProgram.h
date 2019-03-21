@@ -16,16 +16,23 @@
 #include <memory>
 #include <fstream>
 #include <vector>
+#include <functional>
+#include <map>
 
 namespace ObjectiveGL
 {
     using namespace std;
+    
     class GLProgram:public GLObject
     {
         friend class GLContext;
     protected:
         string vertexShaderStr;
         string fragmentShaderStr;
+        
+        map<string,function<void()>> uniformFunc;
+        vector<pair<GLuint, shared_ptr<GLTexture>>> textures;
+        
         GLProgram(): programID(0),vertexShaderID(0),fragmentShaderID(0){}
     public:
         GLuint programID;
@@ -306,6 +313,27 @@ namespace ObjectiveGL
         {
             auto location = getUniformLocation(name);
             setUniform(location, matrix);
+        }
+        
+        void setTexture(string name,shared_ptr<GLTexture> texture)
+        {
+            auto location = getUniformLocation(name);
+            bool found = false;
+            for (int i=0; i<textures.size(); i++)
+            {
+                if (textures[i].first == location)
+                {
+                    found = true;
+                    textures[i].second = texture;
+                    texture->active(i);
+                    texture->bind();
+                    glUniform1i(location, i);
+                }
+            }
+            if (!found)
+            {
+                textures.push_back(pair<GLuint,shared_ptr<GLTexture>>(location,texture));
+            }
         }
     };
 }

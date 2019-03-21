@@ -11,8 +11,10 @@
 #include "GLTexture.h"
 #include "GLRenderBuffer.h"
 #include "GLObject.h"
+#include "GLProgram.h"
 #include <memory>
 #include <vector>
+#include <map>
 namespace ObjectiveGL
 {
     using namespace std;
@@ -58,6 +60,14 @@ namespace ObjectiveGL
             glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, renderBuffer->renderBufferID);
             GLenum buf = GL_COLOR_ATTACHMENT0;
             glDrawBuffers(1, &buf);
+        }
+        template<class vboType,class eboType>
+        void draw(shared_ptr<GLProgram> program,GLVertexArray<vboType,eboType> vao,GLsizei count=0)
+        {
+            check();
+            glBindBuffer(GL_FRAMEBUFFER, frameBufferID);
+            program->use();
+            vao->draw(count);
         }
         
     };
