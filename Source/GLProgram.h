@@ -30,30 +30,47 @@ namespace ObjectiveGL
         string vertexShaderStr;
         string fragmentShaderStr;
         
-        map<string,function<void()>> uniformFunc;
+        map<GLuint,function<void()>> uniformFunc;
         vector<pair<GLuint, shared_ptr<GLTexture>>> textures;
         
         GLProgram(): programID(0),vertexShaderID(0),fragmentShaderID(0){}
-    public:
-        GLuint programID;
-        GLuint vertexShaderID;
-        GLuint fragmentShaderID;
-        void loadFromFile(string vertexShaderFile, string fragmentShaderFile)
+        
+        void setUniform(string name,function<void()> func)
         {
-            auto vs = Util::readFile(vertexShaderFile);
-            auto fs = Util::readFile(fragmentShaderFile);
-            setShaderString(vs,fs);
+            auto location = getUniformLocation(name);
+            setUniform(location, func);
         }
-        void setShaderString(string vs, string fs)
+        
+        void setUniform(GLuint location,function<void()> func)
         {
-            vertexShaderStr = vs;
-            fragmentShaderStr = fs;
+            check();
+            uniformFunc[location] = func;
+            func();
+            checkError();
         }
-        virtual void init()
+        
+        
+        void setUniformToGL()
+        {
+            for(auto &uniform:uniformFunc)
+            {
+                uniform.second();
+            }
+            for (int i=0; i<textures.size(); i++)
+            {
+                auto texture = textures[i].second;
+                auto location = textures[i].first;
+                texture->active(i);
+                texture->bind();
+                glUniform1i(location, i);
+            }
+        }
+        
+        void compile()
         {
             GLint success;
             GLchar infoLog[512];
-
+            
             const GLchar *const vsStr = vertexShaderStr.c_str();
             const GLchar *const fsStr = fragmentShaderStr.c_str();
             try
@@ -67,7 +84,7 @@ namespace ObjectiveGL
                     glGetShaderInfoLog(vertexShaderID, 512, nullptr, infoLog);
                     throw GLError(ObjectiveGLError_VertexShaderCompileFailed,infoLog);
                 }
-
+                
                 fragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
                 glShaderSource(fragmentShaderID, 1, &fsStr, nullptr);
                 glCompileShader(fragmentShaderID);
@@ -77,13 +94,13 @@ namespace ObjectiveGL
                     glGetShaderInfoLog(fragmentShaderID, 512, nullptr, infoLog);
                     throw GLError(ObjectiveGLError_FragmentShaderCompileFailed,infoLog);
                 }
-
+                
                 programID = glCreateProgram();
                 glAttachShader(programID, vertexShaderID);
                 glAttachShader(programID, fragmentShaderID);
-
+                
                 GLint linked;
-
+                
                 glLinkProgram(programID);
                 glGetProgramiv(programID, GL_LINK_STATUS, &linked);
                 if (!linked)
@@ -110,7 +127,12 @@ namespace ObjectiveGL
             }
         }
         
-        virtual void clearup()
+    public:
+        GLuint programID;
+        GLuint vertexShaderID;
+        GLuint fragmentShaderID;
+        
+        ~GLProgram()
         {
             check();
             GLuint vs = vertexShaderID;
@@ -130,6 +152,20 @@ namespace ObjectiveGL
             }
         }
         
+        void loadFromFile(string vertexShaderFile, string fragmentShaderFile)
+        {
+            auto vs = Util::readFile(vertexShaderFile);
+            auto fs = Util::readFile(fragmentShaderFile);
+            setShaderString(vs,fs);
+        }
+        void setShaderString(string vs, string fs)
+        {
+            vertexShaderStr = vs;
+            fragmentShaderStr = fs;
+            compile();
+        }
+        
+        
         void use()
         {
             check();
@@ -138,90 +174,112 @@ namespace ObjectiveGL
         
         void setUniform(GLuint location,GLfloat x)
         {
-            check();
-            glUniform1f(location, x);
+            setUniform(location, [=]{
+                glUniform1f(location, x);
+            });
         }
         
         void setUniform(GLuint location,GLfloat x,GLfloat y)
         {
-            check();
-            glUniform2f(location, x, y);
+            setUniform(location, [=]{
+                glUniform2f(location, x, y);
+            });
+            
         }
         
         void setUniform(GLuint location,GLfloat x,GLfloat y,GLfloat z)
         {
-            check();
-            glUniform3f(location, x, y, z);
+            setUniform(location, [=]{
+                glUniform3f(location, x, y, z);
+            });
         }
         
         void setUniform(GLuint location,GLfloat x,GLfloat y,GLfloat z,GLfloat w)
         {
-            check();
-            glUniform4f(location, x, y, z, w);
+            setUniform(location, [=]{
+                glUniform4f(location, x, y, z, w);
+            });
         }
         
         void setUniform(GLuint location,GLint x)
         {
-            check();
-            glUniform1i(location, x);
+            setUniform(location, [=]{
+                glUniform1i(location, x);
+            });
+            
         }
         
         void setUniform(GLuint location,GLint x,GLint y)
         {
-            check();
-            glUniform2i(location, x, y);
+            setUniform(location, [=]{
+                glUniform2i(location, x, y);
+            });
+            
         }
         
         void setUniform(GLuint location,GLint x,GLint y,GLint z)
         {
-            check();
-            glUniform3i(location, x, y, z);
+            setUniform(location, [=]{
+                glUniform3i(location, x, y, z);
+            });
         }
         
         void setUniform(GLuint location,GLint x,GLint y,GLint z,GLint w)
         {
+            setUniform(location, [=]{
+                glUniform4i(location, x, y, z, w);
+            });
             check();
-            glUniform4i(location, x, y, z, w);
+            
         }
         
         void setUniform(GLuint location,GLuint x)
         {
-            check();
-            glUniform1ui(location, x);
+            setUniform(location, [=]{
+                glUniform1ui(location, x);
+            });
         }
         
         void setUniform(GLuint location,GLuint x,GLuint y)
         {
-            check();
-            glUniform2ui(location, x, y);
+            setUniform(location, [=]{
+                glUniform2ui(location, x, y);
+            });
         }
         
         void setUniform(GLuint location,GLuint x,GLuint y,GLuint z)
         {
-            check();
-            glUniform3ui(location, x, y, z);
+            setUniform(location, [=]{
+                glUniform3ui(location, x, y, z);
+            });
         }
         
         void setUniform(GLuint location,GLuint x,GLuint y,GLuint z,GLuint w)
         {
-            check();
-            glUniform4ui(location, x, y, z, w);
+            setUniform(location, [=]{
+                glUniform4ui(location, x, y, z, w);
+            });
         }
         
         void setUniform(GLuint location,vector<GLfloat> matrix)
         {
-            check();
             if (matrix.size()==4)
             {
-                glUniformMatrix2fv(location, (GLsizei)matrix.size(), false, matrix.data());
+                setUniform(location, [=]{
+                    glUniformMatrix2fv(location, (GLsizei)matrix.size(), false, matrix.data());
+                });
             }
             else if (matrix.size()==9)
             {
-                glUniformMatrix3fv(location, (GLsizei)matrix.size(), false, matrix.data());
+                setUniform(location, [=]{
+                    glUniformMatrix3fv(location, (GLsizei)matrix.size(), false, matrix.data());
+                });
             }
             else if (matrix.size()==16)
             {
-                glUniformMatrix4fv(location, (GLsizei)matrix.size(), false, matrix.data());
+                setUniform(location, [=]{
+                    glUniformMatrix4fv(location, (GLsizei)matrix.size(), false, matrix.data());
+                });
             }
             else
             {
@@ -246,19 +304,19 @@ namespace ObjectiveGL
         void setUniform(string name,GLfloat x,GLfloat y)
         {
             auto location = getUniformLocation(name);
-            setUniform(location, x,y);
+            setUniform(location, x, y);
         }
         
         void setUniform(string name,GLfloat x,GLfloat y,GLfloat z)
         {
             auto location = getUniformLocation(name);
-            setUniform(location, x,y,z);
+            setUniform(location, x, y, z);
         }
         
         void setUniform(string name,GLfloat x,GLfloat y,GLfloat z,GLfloat w)
         {
             auto location = getUniformLocation(name);
-            setUniform(location, x,y,z,w);
+            setUniform(location, x, y, z, w);
         }
         
         void setUniform(string name,GLint x)
@@ -270,19 +328,19 @@ namespace ObjectiveGL
         void setUniform(string name,GLint x,GLint y)
         {
             auto location = getUniformLocation(name);
-            setUniform(location, x,y);
+            setUniform(location, x, y);
         }
         
         void setUniform(string name,GLint x,GLint y,GLint z)
         {
             auto location = getUniformLocation(name);
-            setUniform(location, x,y,z);
+            setUniform(location, x, y, z);
         }
         
         void setUniform(string name,GLint x,GLint y,GLint z,GLint w)
         {
             auto location = getUniformLocation(name);
-            setUniform(location, x,y,z,w);
+            setUniform(location, x, y, z, w);
         }
         
         void setUniform(string name,GLuint x)
@@ -294,19 +352,19 @@ namespace ObjectiveGL
         void setUniform(string name,GLuint x,GLuint y)
         {
             auto location = getUniformLocation(name);
-            setUniform(location, x,y);
+            setUniform(location, x, y);
         }
         
         void setUniform(string name,GLuint x,GLuint y,GLuint z)
         {
             auto location = getUniformLocation(name);
-            setUniform(location, x,y,z);
+            setUniform(location, x, y, z);
         }
         
         void setUniform(string name,GLuint x,GLuint y,GLuint z,GLuint w)
         {
             auto location = getUniformLocation(name);
-            setUniform(location, x,y,z,w);
+            setUniform(location, x, y, z, w);
         }
         
         void setUniform(string name,vector<GLfloat> matrix)
