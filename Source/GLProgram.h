@@ -330,7 +330,7 @@ namespace ObjectiveGL
         void setUniform(string name,GLint x,GLint y,GLint z)
         {
             auto location = getUniformLocation(name);
-            setUniform(location, x, y, z, w);
+            setUniform(location, x, y, z);
         }
         
         void setUniform(string name,GLint x,GLint y,GLint z,GLint w)
