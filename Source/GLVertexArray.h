@@ -14,6 +14,7 @@
 #include <vector>
 #include "GLBuffer.h"
 #include "GLError.h"
+#include "GLUtil.h"
 namespace ObjectiveGL
 {
     using namespace std;

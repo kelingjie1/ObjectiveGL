@@ -8,8 +8,7 @@
 
 #pragma once
 
-#include <OpenGLES/ES3/gl.h>
-#include <OpenGLES/ES3/glext.h>
+#include "GLPlatform.h"
 #include "GLObject.h"
 #include "GLContext.h"
 #include <memory>

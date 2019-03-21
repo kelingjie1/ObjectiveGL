@@ -7,8 +7,7 @@
 //
 #pragma once
 
-#include <OpenGLES/ES3/gl.h>
-#include <OpenGLES/ES3/glext.h>
+#include "GLPlatform.h"
 #include "GLContext.h"
 #include "GLObject.h"
 
@@ -33,7 +32,7 @@ namespace ObjectiveGL
         }
         
 
-        void setImageData(const GLvoid *pixels, GLsizei width,GLsizei height,GLenum internalformat=GL_RGBA,GLenum format=GL_BGRA)
+        void setImageData(const GLvoid *pixels, GLsizei width,GLsizei height,GLenum internalformat=GL_RGBA,GLenum format=GL_RGBA)
         {
             check();
             glBindTexture(GL_TEXTURE_2D, textureID);

@@ -5,19 +5,24 @@
 
 cmake_minimum_required(VERSION 3.4.1)
 
+file(GLOB_RECURSE SRC_FILES
+        *.cpp
+        ../../../../../Source/*.cpp
+        ../../../../../Source/platform/android/*.cpp)
+
 # Creates and names a library, sets it as either STATIC
 # or SHARED, and provides the relative paths to its source code.
 # You can define multiple libraries, and CMake builds them for you.
 # Gradle automatically packages shared libraries with your APK.
 
 add_library( # Sets the name of the library.
-             native-lib
+             objective-gl
 
              # Sets the library as a shared library.
              SHARED
 
              # Provides a relative path to your source file(s).
-             native-lib.cpp )
+            ${SRC_FILES} )
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by
@@ -26,19 +31,31 @@ add_library( # Sets the name of the library.
 # completing its build.
 
 find_library( # Sets the name of the path variable.
-              log-lib
+        android-lib
+        android)
 
-              # Specifies the name of the NDK library that
-              # you want CMake to locate.
-              log )
+find_library( # Sets the name of the path variable.
+        log-lib
+        log)
+
+find_library( # Sets the name of the path variable.
+        egl-lib
+        EGL)
+
+find_library( # Sets the name of the path variable.
+        gles-lib
+        GLESv3)
 
 # Specifies libraries CMake should link to your target library. You
 # can link multiple libraries, such as libraries you define in this
 # build script, prebuilt third-party libraries, or system libraries.
 
 target_link_libraries( # Specifies the target library.
-                       native-lib
+                       objective-gl
 
                        # Links the target library to the log library
                        # included in the NDK.
-                       ${log-lib} )
+                        ${android-lib}
+                        ${log-lib}
+                        ${egl-lib}
+                        ${gles-lib})

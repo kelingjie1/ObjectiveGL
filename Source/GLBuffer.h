@@ -86,7 +86,7 @@ namespace ObjectiveGL
     {
         friend class GLContext;
     protected:
-        GLVertexBuffer(shared_ptr<GLContext> context):GLBuffer<T>(context)
+        GLVertexBuffer(shared_ptr<GLContext> context):GLBuffer<T>()
         {
             this->bufferType = GL_ARRAY_BUFFER;
         }
@@ -98,7 +98,7 @@ namespace ObjectiveGL
     {
         friend class GLContext;
     protected:
-        GLElementBuffer(shared_ptr<GLContext> context):GLBuffer<T>(context)
+        GLElementBuffer(shared_ptr<GLContext> context):GLBuffer<T>()
         {
             this->bufferType = GL_ELEMENT_ARRAY_BUFFER;
         }
