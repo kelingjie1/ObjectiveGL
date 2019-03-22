@@ -23,16 +23,27 @@ class GLFrameBuffer : public GLShareObject {
     friend class GLContext;
 
 protected:
-    GLFrameBuffer() {
-        glGenBuffers(1, &frameBufferID);
+    bool isBackend;
+    GLFrameBuffer(int backendFrameBuffer) {
+        if (backendFrameBuffer<0) {
+            glGenBuffers(1, &frameBufferID);
+            isBackend = false;
+        }
+        else {
+            frameBufferID = backendFrameBuffer;
+            isBackend = true;
+        }
     }
 
 public:
     GLuint frameBufferID;
 
     ~GLFrameBuffer() {
-        context->check();
-        glDeleteBuffers(1, &frameBufferID);
+        if (!isBackend) {
+            context->check();
+            glDeleteBuffers(1, &frameBufferID);
+        }
+        
     }
 
     void setColorTextures(vector<shared_ptr<GLTexture> > textures) {
@@ -66,6 +77,14 @@ public:
         glBindBuffer(GL_FRAMEBUFFER, frameBufferID);
         program->use();
         vao->draw(count);
+    }
+    
+    void clear(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
+    {
+        check();
+        glBindBuffer(GL_FRAMEBUFFER, frameBufferID);
+        glClearColor(red, green, blue, alpha);
+        glClear(GL_COLOR_BUFFER_BIT);
     }
 
 };

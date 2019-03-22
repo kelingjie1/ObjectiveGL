@@ -32,7 +32,7 @@ class GLPlatform {
 public:
     static shared_ptr<GLShareGroup> createShareGroup();
 
-    static void *createContext(GLContext *context, GLShareGroup *shareGroup);
+    static void *createContext(GLShareGroup *shareGroup);
 
     static void setContext(void *context);
 

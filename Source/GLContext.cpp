@@ -14,13 +14,12 @@ shared_ptr<GLContext> &GLContext::currentContext() {
 };
 
 GLContext::GLContext(shared_ptr<GLShareGroup> sharegroup) : sharegroup(sharegroup) {
-    context = GLPlatform::createContext(this, sharegroup.get());
-    cout << "GLContext(" << this << ")" << endl;
+    context = GLPlatform::createContext(sharegroup.get());
 }
 
 void GLContext::setCurrent() {
     auto s = shared_from_this();
-    GLPlatform::setContext(this);
+    GLPlatform::setContext(this->context);
     currentContext() = s;
 }
 
@@ -38,9 +37,9 @@ shared_ptr<GLTexture> GLContext::createTexture() {
     return shared_ptr<GLTexture>(new GLTexture());
 }
 
-shared_ptr<GLFrameBuffer> GLContext::createFrameBuffer() {
+shared_ptr<GLFrameBuffer> GLContext::createFrameBuffer(int backendFrameBuffer) {
     check();
-    return shared_ptr<GLFrameBuffer>(new GLFrameBuffer());
+    return shared_ptr<GLFrameBuffer>(new GLFrameBuffer(backendFrameBuffer));
 }
 
 shared_ptr<GLRenderBuffer> GLContext::createRenderBuffer() {

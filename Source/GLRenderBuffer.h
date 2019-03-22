@@ -20,14 +20,21 @@ class GLRenderBuffer : public GLShareObject {
     friend class GLContext;
 
 protected:
-    GLRenderBuffer() {
-        glGenRenderbuffers(1, &renderBufferID);
+    GLRenderBuffer(GLuint backendRenderBuffer=0) {
+        if (backendRenderBuffer) {
+            renderBufferID = backendRenderBuffer;
+        }
+        else {
+            glGenRenderbuffers(1, &renderBufferID);
+        }
+        
     }
 
 public:
     GLuint renderBufferID;
 
     ~GLRenderBuffer() {
+        check();
         glDeleteRenderbuffers(1, &renderBufferID);
     }
 };

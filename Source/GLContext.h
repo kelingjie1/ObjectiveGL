@@ -37,7 +37,11 @@ template<class T>
 class GLBuffer;
 
 class GLShareGroup {
+    friend class GLPlatform;
+protected:
+    GLShareGroup(){};
 public:
+    void *sharegroup;
     static shared_ptr<GLShareGroup> create() {
         return GLPlatform::createShareGroup();
     }
@@ -63,7 +67,7 @@ public:
 
     shared_ptr<GLTexture> createTexture();
 
-    shared_ptr<GLFrameBuffer> createFrameBuffer();
+    shared_ptr<GLFrameBuffer> createFrameBuffer(int backendFramebuffer=-1);
 
     shared_ptr<GLRenderBuffer> createRenderBuffer();
 
