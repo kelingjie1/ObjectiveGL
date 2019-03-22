@@ -61,8 +61,7 @@ public:
     }
 
     template<class vboType, class eboType>
-    void
-    draw(shared_ptr<GLProgram> program, GLVertexArray<vboType, eboType> vao, GLsizei count = 0) {
+    void draw(shared_ptr<GLProgram> program, GLVertexArray<vboType, eboType> vao, GLsizei count = 0) {
         check();
         glBindBuffer(GL_FRAMEBUFFER, frameBufferID);
         program->use();

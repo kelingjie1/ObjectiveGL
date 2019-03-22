@@ -29,13 +29,12 @@ public:
 
 class GLVertexArrayParams {
 public:
-    GLuint index;
     GLint size;//1、2、3、4
     GLenum type;//GL_FLOAT/GL_INT
     GLboolean normalized;
 
-    GLVertexArrayParams(GLuint index, GLint size = 1, GLenum type = GL_FLOAT,
-                        GLboolean normalized = false) : index(index), size(size), type(type),
+    GLVertexArrayParams(GLenum type,GLint size = 1,
+                        GLboolean normalized = false) : type(type), size(size),
                                                         normalized(normalized) {}
 };
 
@@ -45,6 +44,10 @@ class GLVertexArray;
 
 template<class vboType, class eboType>
 class GLVertexArray : public GLObject {
+    
+    friend class GLFrameBuffer;
+protected:
+    
     GLenum mode;
     shared_ptr<GLVertexBuffer<vboType>> vertexbuffer;
     shared_ptr<GLElementBuffer<eboType>> elementBuffer;
@@ -60,6 +63,34 @@ class GLVertexArray : public GLObject {
         checkError();
     }
 
+    void draw(GLsizei count = 0) {
+        check();
+        glBindVertexArray(vao);
+        if (elementBuffer) {
+            if (count == 0) {
+                count = elementBuffer->count;
+            }
+            GLenum type;
+            if (sizeof(eboType) == sizeof(unsigned char)) {
+                type = GL_UNSIGNED_BYTE;
+            } else if (sizeof(eboType) == sizeof(unsigned short)) {
+                type = GL_UNSIGNED_SHORT;
+            } else if (sizeof(eboType) == sizeof(unsigned int)) {
+                type = GL_UNSIGNED_INT;
+            } else {
+                throw "";
+            }
+            glDrawElements(mode, count, type, nullptr);
+        } else {
+            if (count == 0) {
+                count = vertexbuffer->count;
+            }
+            glDrawArrays(mode, 0, count);
+        }
+        
+        glBindVertexArray(0);
+    }
+    
 public:
     GLuint vao;
 
@@ -89,7 +120,7 @@ public:
             auto param = params[i];
             GLsizei stride = sizeof(vboType);
             GLvoid *of = reinterpret_cast<GLvoid *>(offset);
-            glVertexAttribPointer(param.index, param.size, param.type, param.normalized, stride,
+            glVertexAttribPointer(i, param.size, param.type, param.normalized, stride,
                                   of);
             offset += Util::sizeOfGLType(param.type) * param.size;
         }
@@ -105,33 +136,7 @@ public:
         this->mode = mode;
     }
 
-    void draw(GLsizei count = 0) {
-        check();
-        glBindVertexArray(vao);
-        if (elementBuffer) {
-            if (count == 0) {
-                count = elementBuffer->count;
-            }
-            GLenum type;
-            if (sizeof(eboType) == sizeof(unsigned char)) {
-                type = GL_UNSIGNED_BYTE;
-            } else if (sizeof(eboType) == sizeof(unsigned short)) {
-                type = GL_UNSIGNED_SHORT;
-            } else if (sizeof(eboType) == sizeof(unsigned int)) {
-                type = GL_UNSIGNED_INT;
-            } else {
-                throw "";
-            }
-            glDrawElements(mode, count, type, nullptr);
-        } else {
-            if (count == 0) {
-                count = vertexbuffer->count;
-            }
-            glDrawArrays(mode, 0, count);
-        }
-
-        glBindVertexArray(0);
-    }
+    
 
     static shared_ptr<GLVertexArray<GLBaseVertex, GLushort>> basicVertexArray() {
         auto vao = GLContext::current()->createVertexArray<GLBaseVertex, GLushort>();
@@ -162,8 +167,8 @@ public:
         vao->setVertexBuffer(buffer);
 
         vector<GLVertexArrayParams> params;
-        params.push_back(GLVertexArrayParams(0, 2));
-        params.push_back(GLVertexArrayParams(1, 2));
+        params.push_back(GLVertexArrayParams(GL_FLOAT,2));
+        params.push_back(GLVertexArrayParams(GL_FLOAT,2));
         vao->setParams(params);
 
         vao->setDrawMode(GL_TRIANGLE_STRIP);
