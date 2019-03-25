@@ -7,6 +7,8 @@
 //
 
 #pragma once
+#ifndef GLBUFFER_H
+#define GLBUFFER_H
 
 #include "GLPlatform.h"
 #include <string>
@@ -107,3 +109,4 @@ public:
 
 };
 }
+#endif

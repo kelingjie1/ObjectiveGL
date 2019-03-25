@@ -18,6 +18,7 @@
 #include <vector>
 #include <functional>
 #include <map>
+#define SHADER_STRING(x) #x
 
 namespace ObjectiveGL {
 using namespace std;

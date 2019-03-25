@@ -6,6 +6,8 @@
 //  Copyright © 2018 tencent. All rights reserved.
 //
 #pragma once
+#ifndef GLCONTEXT_H
+#define GLCONTEXT_H
 
 #include "GLPlatform.h"
 #include "GLError.h"
@@ -87,3 +89,4 @@ public:
     void check(bool share = false);
 };
 }
+#endif

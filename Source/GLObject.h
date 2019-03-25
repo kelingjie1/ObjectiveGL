@@ -6,6 +6,8 @@
 //  Copyright © 2018 tencent. All rights reserved.
 //
 #pragma once
+#ifndef GLOBJECT_H
+#define GLOBJECT_H
 
 #include "GLContext.h"
 #include "GLPlatform.h"
@@ -48,3 +50,4 @@ public:
     }
 };
 }
+#endif

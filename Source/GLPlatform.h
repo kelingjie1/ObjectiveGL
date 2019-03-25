@@ -25,9 +25,8 @@ namespace ObjectiveGL {
 using namespace std;
 
 class GLShareGroup;
-
 class GLContext;
-
+    
 class GLPlatform {
 public:
     static shared_ptr<GLShareGroup> createShareGroup();
@@ -37,6 +36,5 @@ public:
     static void setContext(void *context);
 
     static void releaseContext(void *context);
-
 };
 }
