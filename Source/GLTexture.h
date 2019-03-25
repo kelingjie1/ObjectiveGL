@@ -23,6 +23,10 @@ protected:
 public:
 
     GLuint textureID;
+    
+    static shared_ptr<GLTexture> create() {
+        return shared_ptr<GLTexture>(new GLTexture());
+    }
 
     ~GLTexture() {
         check();

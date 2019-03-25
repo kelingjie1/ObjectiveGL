@@ -45,6 +45,10 @@ public:
         }
         
     }
+    
+    static shared_ptr<GLFrameBuffer> create(int backendFrameBuffer) {
+        return shared_ptr<GLFrameBuffer>(new GLFrameBuffer(backendFrameBuffer));
+    }
 
     void setColorTextures(vector<shared_ptr<GLTexture> > textures) {
         glBindBuffer(GL_FRAMEBUFFER, frameBufferID);

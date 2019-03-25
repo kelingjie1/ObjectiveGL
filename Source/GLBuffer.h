@@ -7,8 +7,6 @@
 //
 
 #pragma once
-#ifndef GLBUFFER_H
-#define GLBUFFER_H
 
 #include "GLPlatform.h"
 #include <string>
@@ -88,12 +86,14 @@ class GLVertexBuffer : public GLBuffer<T> {
     friend class GLContext;
 
 protected:
-    GLVertexBuffer(shared_ptr<GLContext> context) : GLBuffer<T>() {
+    GLVertexBuffer() : GLBuffer<T>() {
         this->bufferType = GL_ARRAY_BUFFER;
     }
 
 public:
-
+    static shared_ptr<GLVertexBuffer<T>> create() {
+        return shared_ptr<GLVertexBuffer<T>>(new GLVertexBuffer<T>());
+    }
 };
 
 template<class T>
@@ -101,12 +101,13 @@ class GLElementBuffer : public GLBuffer<T> {
     friend class GLContext;
 
 protected:
-    GLElementBuffer(shared_ptr<GLContext> context) : GLBuffer<T>() {
+    GLElementBuffer() : GLBuffer<T>() {
         this->bufferType = GL_ELEMENT_ARRAY_BUFFER;
     }
 
 public:
-
+    static shared_ptr<GLElementBuffer<T>> create() {
+        return shared_ptr<GLElementBuffer<T>>(new GLElementBuffer<T>());
+    }
 };
 }
-#endif

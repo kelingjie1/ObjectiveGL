@@ -6,8 +6,6 @@
 //  Copyright © 2018 tencent. All rights reserved.
 //
 #pragma once
-#ifndef GLCONTEXT_H
-#define GLCONTEXT_H
 
 #include "GLPlatform.h"
 #include "GLError.h"
@@ -53,40 +51,49 @@ class GLContext;
 
 class GLContext : public enable_shared_from_this<GLContext> {
 
-    static shared_ptr<GLContext> &currentContext();
+    static shared_ptr<GLContext> &currentContext() {
+        static thread_local shared_ptr<GLContext> context;
+        return context;
+    }
 
-    GLContext(shared_ptr<GLShareGroup> sharegroup);
+    GLContext(shared_ptr<GLShareGroup> sharegroup) {
+        context = GLPlatform::createContext(sharegroup.get());
+    }
 
 public:
     shared_ptr<GLShareGroup> sharegroup;
     void *context;
+    
+    ~GLContext() {
+        GLPlatform::releaseContext(this->context);
+    }
 
-    static shared_ptr<GLContext> current();
+    static shared_ptr<GLContext> current() {
+        return currentContext();
+    }
 
-    static shared_ptr<GLContext> create(shared_ptr<GLShareGroup> sharegroup = nullptr);
+    static shared_ptr<GLContext> create(shared_ptr<GLShareGroup> sharegroup = nullptr) {
+        auto context = shared_ptr<GLContext>(new GLContext(sharegroup));
+        return context;
+    }
 
-    void setCurrent();
+    void setCurrent() {
+        auto s = shared_from_this();
+        GLPlatform::setContext(this->context);
+        currentContext() = s;
+    }
 
-    shared_ptr<GLTexture> createTexture();
-
-    shared_ptr<GLFrameBuffer> createFrameBuffer(int backendFramebuffer=-1);
-
-    shared_ptr<GLRenderBuffer> createRenderBuffer();
-
-    shared_ptr<GLProgram> createProgram();
-
-    template<class vboType, class eboType>
-    shared_ptr<GLVertexArray<vboType, eboType>> createVertexArray();
-
-    template<class T>
-    shared_ptr<GLElementBuffer<T>> createElementBuffer();
-
-    template<class T>
-    shared_ptr<GLVertexBuffer<T>> createVertexBuffer();
-
-    ~GLContext();
-
-    void check(bool share = false);
+    void check(bool share = false) {
+        bool failed = false;
+        if (share && share && sharegroup && GLContext::current()->sharegroup == sharegroup) {
+            //sharegroup
+        } else if (GLContext::current().get() != this) {
+            failed = true;
+        }
+        
+        if (failed) {
+            throw GLError(ObjectiveGLError_ContextCheckFailed);
+        }
+    }
 };
 }
-#endif

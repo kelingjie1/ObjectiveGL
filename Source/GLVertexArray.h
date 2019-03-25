@@ -57,12 +57,6 @@ protected:
         checkError();
     }
 
-    ~GLVertexArray() {
-        check();
-        glDeleteVertexArrays(1, &vao);
-        checkError();
-    }
-
     void draw(GLsizei count = 0) {
         check();
         glBindVertexArray(vao);
@@ -93,7 +87,17 @@ protected:
     
 public:
     GLuint vao;
+    
+    static shared_ptr<GLVertexArray<vboType,eboType>> create() {
+        return shared_ptr<GLVertexArray<vboType,eboType>>(new GLVertexArray<vboType,eboType>());
+    }
 
+    ~GLVertexArray() {
+        check();
+        glDeleteVertexArrays(1, &vao);
+        checkError();
+    }
+    
     void setVertexBuffer(shared_ptr<GLVertexBuffer<vboType>> vertexbuffer) {
         this->vertexbuffer = vertexbuffer;
         check();
@@ -139,9 +143,9 @@ public:
     
 
     static shared_ptr<GLVertexArray<GLBaseVertex, GLushort>> basicVertexArray() {
-        auto vao = GLContext::current()->createVertexArray<GLBaseVertex, GLushort>();
+        auto vao = GLVertexArray<GLBaseVertex, GLushort>::create();
 
-        auto buffer = GLContext::current()->createVertexBuffer<GLBaseVertex>();
+        auto buffer = GLVertexBuffer<GLBaseVertex>::create();
         buffer->alloc(4);
         auto vertex = buffer->lock();
         vertex[0].x = -1.0f;
