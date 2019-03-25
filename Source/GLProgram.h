@@ -33,7 +33,7 @@ protected:
     map <GLuint, function<void()>> uniformFunc;
     vector<pair<GLuint, shared_ptr<GLTexture>>> textures;
 
-    GLProgram() : programID(0), vertexShaderID(0), fragmentShaderID(0) {}
+    GLProgram() : programID(glCreateProgram()), vertexShaderID(0), fragmentShaderID(0) {}
 
     void setUniform(string name, function<void()> func) {
         auto location = getUniformLocation(name);
@@ -86,7 +86,6 @@ protected:
                 throw GLError(ObjectiveGLError_FragmentShaderCompileFailed, infoLog);
             }
 
-            programID = glCreateProgram();
             glAttachShader(programID, vertexShaderID);
             glAttachShader(programID, fragmentShaderID);
 
@@ -106,9 +105,6 @@ protected:
             if (fragmentShaderID) {
                 glDeleteShader(fragmentShaderID);
             }
-            if (programID) {
-                glDeleteProgram(programID);
-            }
             throw error;
         }
     }
@@ -117,6 +113,10 @@ public:
     GLuint programID;
     GLuint vertexShaderID;
     GLuint fragmentShaderID;
+    
+    static shared_ptr<GLProgram> create() {
+        return shared_ptr<GLProgram>(new GLProgram());
+    }
 
     ~GLProgram() {
         check();

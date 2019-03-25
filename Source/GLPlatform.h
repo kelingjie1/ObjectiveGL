@@ -20,12 +20,14 @@
 #endif
 
 #include <memory>
+#include <string>
 
 namespace ObjectiveGL {
 using namespace std;
 
 class GLShareGroup;
 class GLContext;
+    class GLTexture;
     
 class GLPlatform {
 public:
@@ -36,5 +38,9 @@ public:
     static void setContext(void *context);
 
     static void releaseContext(void *context);
+    
+    static shared_ptr<GLTexture> createTextureFromFile(string file);
+    
+    static string getResourcesPath();
 };
 }
