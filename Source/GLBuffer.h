@@ -86,6 +86,15 @@ public:
         checkError();
         
     }
+    
+    void copyFromBuffer(shared_ptr<GLBuffer> buffer,GLuint readOffset=0,GLuint writeOffset=0,GLsizei size=0) {
+        glBindBuffer(GL_COPY_READ_BUFFER, buffer->bufferID);
+        glBindBuffer(GL_COPY_WRITE_BUFFER, bufferID);
+        if (size == 0) {
+            size = min(buffer->size,this->size);
+        }
+        glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, readOffset, writeOffset, size);
+    }
 };
 
 }

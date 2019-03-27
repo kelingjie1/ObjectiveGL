@@ -96,14 +96,12 @@ public:
         check();
         glBindVertexArray(vao);
         checkError();
-        if (type == GL_TRANSFORM_FEEDBACK_BUFFER) {
-            glBindBufferBase(type, 0, buffer->bufferID);
-        }
-        else {
+        if (type != GL_TRANSFORM_FEEDBACK_BUFFER) {
             glBindBuffer(type, buffer->bufferID);
         }
         checkError();
         glBindVertexArray(0);
+        checkError();
         bufferMap[type] = buffer;
     }
     
@@ -144,10 +142,15 @@ public:
         program->use();
         glEnable(GL_RASTERIZER_DISCARD);
         checkError();
+        auto buffer = bufferMap[GL_TRANSFORM_FEEDBACK_BUFFER];
+        glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, buffer->bufferID);
+        checkError();
         glBeginTransformFeedback(mode);
         checkError();
         draw();
         glEndTransformFeedback();
+        checkError();
+        glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, 0);
         checkError();
         glDisable(GL_RASTERIZER_DISCARD);
         checkError();
