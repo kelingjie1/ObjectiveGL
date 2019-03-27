@@ -136,7 +136,7 @@ public:
         vertexShaderID = compileShader(vs, GL_VERTEX_SHADER);
         glAttachShader(programID, vertexShaderID);
         checkError();
-        fragmentShaderID = compileShader("#version 300 es\nvoid main(){)}", GL_FRAGMENT_SHADER);
+        fragmentShaderID = compileShader("#version 300 es\nvoid main(){}", GL_FRAGMENT_SHADER);
         glAttachShader(programID, fragmentShaderID);
         checkError();
         glTransformFeedbackVaryings(programID, (GLsizei)varyings.size(), varyings.data(), bufferMode);
