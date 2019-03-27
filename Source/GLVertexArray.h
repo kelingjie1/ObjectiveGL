@@ -12,6 +12,7 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <map>
 #include "GLBuffer.h"
 #include "GLError.h"
 #include "GLUtil.h"
@@ -38,21 +39,17 @@ public:
                                                         normalized(normalized) {}
 };
 
-template<class vboType, class eboType>
-class GLVertexArray;
 
-
-template<class vboType, class eboType>
 class GLVertexArray : public GLObject {
     
     friend class GLFrameBuffer;
 protected:
     
     GLenum mode;
-    shared_ptr<GLVertexBuffer<vboType>> vertexbuffer;
-    shared_ptr<GLElementBuffer<eboType>> elementBuffer;
+    GLenum eboType;
+    map<GLenum,shared_ptr<GLBuffer>> bufferMap;
 
-    GLVertexArray() {
+    GLVertexArray():eboType(GL_UNSIGNED_INT) {
         glGenVertexArrays(1, &vao);
         checkError();
     }
@@ -60,22 +57,16 @@ protected:
     void draw(GLsizei count = 0) {
         check();
         glBindVertexArray(vao);
-        if (elementBuffer) {
+        auto it = bufferMap.find(GL_ELEMENT_ARRAY_BUFFER);
+        if (it != bufferMap.end()) {
+            auto elementBuffer = it->second;
             if (count == 0) {
                 count = elementBuffer->count;
             }
-            GLenum type;
-            if (sizeof(eboType) == sizeof(unsigned char)) {
-                type = GL_UNSIGNED_BYTE;
-            } else if (sizeof(eboType) == sizeof(unsigned short)) {
-                type = GL_UNSIGNED_SHORT;
-            } else if (sizeof(eboType) == sizeof(unsigned int)) {
-                type = GL_UNSIGNED_INT;
-            } else {
-                throw "";
-            }
-            glDrawElements(mode, count, type, nullptr);
+            glDrawElements(mode, count, eboType, nullptr);
         } else {
+            auto it = bufferMap.find(GL_ARRAY_BUFFER);
+            auto vertexbuffer = it->second;
             if (count == 0) {
                 count = vertexbuffer->count;
             }
@@ -88,8 +79,8 @@ protected:
 public:
     GLuint vao;
     
-    static shared_ptr<GLVertexArray<vboType,eboType>> create() {
-        return shared_ptr<GLVertexArray<vboType,eboType>>(new GLVertexArray<vboType,eboType>());
+    static shared_ptr<GLVertexArray> create() {
+        return shared_ptr<GLVertexArray>(new GLVertexArray());
     }
 
     ~GLVertexArray() {
@@ -98,31 +89,26 @@ public:
         checkError();
     }
     
-    void setVertexBuffer(shared_ptr<GLVertexBuffer<vboType>> vertexbuffer) {
-        this->vertexbuffer = vertexbuffer;
+    void setBuffer(shared_ptr<GLBuffer> buffer) {
         check();
         glBindVertexArray(vao);
-        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer->bufferID);
+        glBindBuffer(buffer->bufferType, buffer->bufferID);
         glBindVertexArray(0);
+        bufferMap[buffer->bufferType] = buffer;
     }
-
-    void setElementBuffer(shared_ptr<GLElementBuffer<eboType>> elementbuffer) {
-        this->elementBuffer = elementbuffer;
-        check();
-        glBindVertexArray(vao);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer->bufferID);
-        glBindVertexArray(0);
-    }
+    
+    
 
 
     void setParams(vector<GLVertexArrayParams> params) {
         check();
         glBindVertexArray(vao);
         GLuint offset = 0;
+        auto vertexBuffer= bufferMap[GL_ARRAY_BUFFER];
         for (int i = 0; i < params.size(); i++) {
             glEnableVertexAttribArray(i);
             auto param = params[i];
-            GLsizei stride = sizeof(vboType);
+            GLsizei stride = vertexBuffer->elementSize;
             GLvoid *of = reinterpret_cast<GLvoid *>(offset);
             glVertexAttribPointer(i, param.size, param.type, param.normalized, stride,
                                   of);
@@ -135,48 +121,13 @@ public:
         }
         glBindVertexArray(0);
     }
+    
+    void setElementBufferType(GLenum type) {
+        eboType = type;
+    }
 
     void setDrawMode(GLenum mode) {
         this->mode = mode;
-    }
-
-    
-
-    static shared_ptr<GLVertexArray<GLBaseVertex, GLushort>> basicVertexArray() {
-        auto vao = GLVertexArray<GLBaseVertex, GLushort>::create();
-
-        auto buffer = GLVertexBuffer<GLBaseVertex>::create();
-        buffer->alloc(4);
-        auto vertex = buffer->lock();
-        vertex[0].x = -1.0f;
-        vertex[0].y = -1.0f;
-        vertex[0].u = 0.0f;
-        vertex[0].v = 0.0f;
-
-        vertex[1].x = 1.0f;
-        vertex[1].y = -1.0f;
-        vertex[1].u = 1.0f;
-        vertex[1].v = 0.0f;
-
-        vertex[2].x = -1.0f;
-        vertex[2].y = 1.0f;
-        vertex[2].u = 0.0f;
-        vertex[2].v = 1.0f;
-
-        vertex[3].x = 1.0f;
-        vertex[3].y = 1.0f;
-        vertex[3].u = 1.0f;
-        vertex[3].v = 1.0f;
-        buffer->unlock();
-        vao->setVertexBuffer(buffer);
-
-        vector<GLVertexArrayParams> params;
-        params.push_back(GLVertexArrayParams(GL_FLOAT,2));
-        params.push_back(GLVertexArrayParams(GL_FLOAT,2));
-        vao->setParams(params);
-
-        vao->setDrawMode(GL_TRIANGLE_STRIP);
-        return vao;
     }
 };
 

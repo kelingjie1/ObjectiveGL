@@ -22,14 +22,18 @@
 
 namespace ObjectiveGL {
 using namespace std;
+    
+enum GLProgramType {
+    GLProgramTypeUnknow,
+    GLProgramTypeRender,
+    GLProgramTypeTransformFeedback,
+};
 
 class GLProgram : public GLObject {
     friend class GLContext;
 
 protected:
-    string vertexShaderStr;
-    string fragmentShaderStr;
-
+    GLProgramType type;
     map <GLuint, function<void()>> uniformFunc;
     vector<pair<GLuint, shared_ptr<GLTexture>>> textures;
 
@@ -60,52 +64,31 @@ protected:
             glUniform1i(location, i);
         }
     }
-
-    void compile() {
+    GLuint compileShader(string str,GLenum type) {
+        
         GLint success;
         GLchar infoLog[512];
-
-        const GLchar *const vsStr = vertexShaderStr.c_str();
-        const GLchar *const fsStr = fragmentShaderStr.c_str();
-        try {
-            vertexShaderID = glCreateShader(GL_VERTEX_SHADER);
-            glShaderSource(vertexShaderID, 1, &vsStr, nullptr);
-            glCompileShader(vertexShaderID);
-            glGetShaderiv(vertexShaderID, GL_COMPILE_STATUS, &success);
-            if (!success) {
-                glGetShaderInfoLog(vertexShaderID, 512, nullptr, infoLog);
-                throw GLError(ObjectiveGLError_VertexShaderCompileFailed, infoLog);
-            }
-
-            fragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
-            glShaderSource(fragmentShaderID, 1, &fsStr, nullptr);
-            glCompileShader(fragmentShaderID);
-            glGetShaderiv(fragmentShaderID, GL_COMPILE_STATUS, &success);
-            if (!success) {
-                glGetShaderInfoLog(fragmentShaderID, 512, nullptr, infoLog);
-                throw GLError(ObjectiveGLError_FragmentShaderCompileFailed, infoLog);
-            }
-
-            glAttachShader(programID, vertexShaderID);
-            glAttachShader(programID, fragmentShaderID);
-
-            GLint linked;
-
-            glLinkProgram(programID);
-            glGetProgramiv(programID, GL_LINK_STATUS, &linked);
-            if (!linked) {
-                glGetProgramInfoLog(programID, 512, nullptr, infoLog);
-                throw GLError(ObjectiveGLError_ProgramLinkFailed, infoLog);
-            }
+        auto c = str.c_str();
+        GLuint shader = glCreateShader(type);
+        glShaderSource(shader, 1, &c, nullptr);
+        glCompileShader(shader);
+        glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+        if (!success) {
+            glGetShaderInfoLog(shader, 512, nullptr, infoLog);
+            throw GLError(ObjectiveGLError_VertexShaderCompileFailed, infoLog);
         }
-        catch (GLError error) {
-            if (vertexShaderID) {
-                glDeleteShader(vertexShaderID);
-            }
-            if (fragmentShaderID) {
-                glDeleteShader(fragmentShaderID);
-            }
-            throw error;
+        checkError();
+        return shader;
+    }
+
+    void link() {
+        GLint linked;
+        GLchar infoLog[512];
+        glLinkProgram(programID);
+        glGetProgramiv(programID, GL_LINK_STATUS, &linked);
+        if (!linked) {
+            glGetProgramInfoLog(programID, 512, nullptr, infoLog);
+            throw GLError(ObjectiveGLError_ProgramLinkFailed, infoLog);
         }
     }
 
@@ -133,17 +116,34 @@ public:
             glDeleteProgram(p);
         }
     }
-
-    void loadFromFile(string vertexShaderFile, string fragmentShaderFile) {
-        auto vs = Util::readFile(vertexShaderFile);
-        auto fs = Util::readFile(fragmentShaderFile);
-        setShaderString(vs, fs);
+    
+    GLProgramType getType() {
+        return type;
     }
 
-    void setShaderString(string vs, string fs) {
-        vertexShaderStr = vs;
-        fragmentShaderStr = fs;
-        compile();
+    void setRenderShader(string vs, string fs) {
+        vertexShaderID = compileShader(vs, GL_VERTEX_SHADER);
+        glAttachShader(programID, vertexShaderID);
+        checkError();
+        fragmentShaderID = compileShader(fs, GL_FRAGMENT_SHADER);
+        glAttachShader(programID, fragmentShaderID);
+        checkError();
+        link();
+        type = GLProgramTypeRender;
+    }
+    
+    void setTransformFeedbackShader(string vs,vector<const GLchar*> varyings,GLenum bufferMode = GL_INTERLEAVED_ATTRIBS) {
+        vertexShaderID = compileShader(vs, GL_VERTEX_SHADER);
+        glAttachShader(programID, vertexShaderID);
+        checkError();
+        fragmentShaderID = compileShader("#version 300 es\nvoid main(){)}", GL_FRAGMENT_SHADER);
+        glAttachShader(programID, fragmentShaderID);
+        checkError();
+        glTransformFeedbackVaryings(programID, (GLsizei)varyings.size(), varyings.data(), bufferMode);
+        checkError();
+        auto c = vs.c_str();
+        link();
+        type = GLProgramTypeTransformFeedback;
     }
 
 

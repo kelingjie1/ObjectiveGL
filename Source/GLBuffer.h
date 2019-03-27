@@ -16,29 +16,36 @@
 namespace ObjectiveGL {
 using namespace std;
 
-template<class T>
 class GLBuffer : public GLShareObject {
 protected:
-    GLBuffer() : bufferID(0), size(0), count(0), bufferType(0) {
+    GLBuffer(GLenum bufferType) : bufferID(0), size(0), bufferType(bufferType) {
         glGenBuffers(1, &bufferID);
         checkError();
     }
 
+
+    
+public:
+    GLuint bufferID;
+    const GLenum bufferType;
+    GLsizei size;
+    GLsizei elementSize;
+    GLsizei count;
+    
     ~GLBuffer() {
         check();
         glDeleteBuffers(1, &bufferID);
     }
-
-    GLenum bufferType;
-public:
-    GLuint bufferID;
-    GLsizei size;
-    GLsizei count;
-
-    void alloc(GLsizei count, T *data = nullptr, GLenum usage = GL_STREAM_DRAW) {
+    
+    static shared_ptr<GLBuffer> create(GLenum bufferType) {
+        return shared_ptr<GLBuffer>(new GLBuffer(bufferType));
+    }
+    
+    void alloc(GLsizei elementSize, GLsizei count, void *data = nullptr, GLenum usage = GL_STREAM_DRAW) {
         check();
         this->count = count;
-        size = count * sizeof(T);
+        this->elementSize = elementSize;
+        size = elementSize*count;
         glBindBuffer(bufferType, bufferID);
         checkError();
         glBufferData(bufferType, size, data, usage);
@@ -47,7 +54,7 @@ public:
         checkError();
     }
 
-    void accessData(function<void(T *data)> func, GLuint offset = 0, GLuint length = 0,
+    void accessData(function<void(void *data)> func, GLuint offset = 0, GLuint length = 0,
                     GLbitfield access = GL_MAP_READ_BIT | GL_MAP_WRITE_BIT) {
         check();
         auto data = lock(offset, length, access);
@@ -55,7 +62,7 @@ public:
         unlock();
     }
 
-    T *lock(GLuint offset = 0, GLuint length = 0,
+    void *lock(GLuint offset = 0, GLuint length = 0,
             GLbitfield access = GL_MAP_READ_BIT | GL_MAP_WRITE_BIT) {
         check();
         if (length == 0) {
@@ -67,7 +74,7 @@ public:
         checkError();
         glBindBuffer(bufferType, 0);
         checkError();
-        return (T *) data;
+        return data;
     }
 
     void unlock() {
@@ -78,36 +85,8 @@ public:
         checkError();
         glBindBuffer(bufferType, 0);
         checkError();
+        
     }
 };
 
-template<class T>
-class GLVertexBuffer : public GLBuffer<T> {
-    friend class GLContext;
-
-protected:
-    GLVertexBuffer() : GLBuffer<T>() {
-        this->bufferType = GL_ARRAY_BUFFER;
-    }
-
-public:
-    static shared_ptr<GLVertexBuffer<T>> create() {
-        return shared_ptr<GLVertexBuffer<T>>(new GLVertexBuffer<T>());
-    }
-};
-
-template<class T>
-class GLElementBuffer : public GLBuffer<T> {
-    friend class GLContext;
-
-protected:
-    GLElementBuffer() : GLBuffer<T>() {
-        this->bufferType = GL_ELEMENT_ARRAY_BUFFER;
-    }
-
-public:
-    static shared_ptr<GLElementBuffer<T>> create() {
-        return shared_ptr<GLElementBuffer<T>>(new GLElementBuffer<T>());
-    }
-};
 }

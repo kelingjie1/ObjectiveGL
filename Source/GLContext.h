@@ -20,20 +20,12 @@ class GLFrameBuffer;
 
 class GLRenderBuffer;
 
-template<class T>
-class GLVertexBuffer;
-
-template<class T>
-class GLElementBuffer;
-
 class GLProgram;
 
 class GLBaseVertex;
 
-template<class vboType, class eboType>
 class GLVertexArray;
 
-template<class T>
 class GLBuffer;
 
 class GLShareGroup {

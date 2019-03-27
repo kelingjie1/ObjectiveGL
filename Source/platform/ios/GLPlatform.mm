@@ -52,10 +52,8 @@ shared_ptr<GLTexture> GLPlatform::createTextureFromFile(string file) {
     CGContextScaleCTM(context, 1.0, -1.0);
     CGContextDrawImage(context, CGRectMake(0, 0, width, height), image.CGImage);
     const void *bitmapdata = CGBitmapContextGetData(context);
-    
     auto texture = GLTexture::create();
     texture->setImageData(bitmapdata, width, height,GL_RGBA,GL_BGRA);
-    
     CGContextRelease(context);
     CGColorSpaceRelease(colorSpace);
     

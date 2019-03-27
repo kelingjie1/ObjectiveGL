@@ -12,6 +12,7 @@
 #include "GLRenderBuffer.h"
 #include "GLObject.h"
 #include "GLProgram.h"
+#include "GLVertexArray.h"
 #include <memory>
 #include <vector>
 #include <map>
@@ -51,7 +52,7 @@ public:
     }
 
     void setColorTextures(vector<shared_ptr<GLTexture> > textures) {
-        glBindBuffer(GL_FRAMEBUFFER, frameBufferID);
+        glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID);
         vector<GLenum> bufs;
         for (int i = 0; i < textures.size(); i++) {
             bufs.push_back(GL_COLOR_ATTACHMENT0 + i);
@@ -75,10 +76,9 @@ public:
         glDrawBuffers(1, &buf);
     }
 
-    template<class vboType, class eboType>
-    void draw(shared_ptr<GLProgram> program, shared_ptr<GLVertexArray<vboType, eboType>> vao, GLsizei count = 0) {
+    void draw(shared_ptr<GLProgram> program, shared_ptr<GLVertexArray> vao, GLsizei count = 0) {
         check();
-        glBindBuffer(GL_FRAMEBUFFER, frameBufferID);
+        glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID);
         program->use();
         vao->draw(count);
     }
@@ -86,7 +86,8 @@ public:
     void clear(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
     {
         check();
-        glBindBuffer(GL_FRAMEBUFFER, frameBufferID);
+        glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID);
+        checkError();
         glClearColor(red, green, blue, alpha);
         glClear(GL_COLOR_BUFFER_BIT);
     }
