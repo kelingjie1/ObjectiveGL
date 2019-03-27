@@ -16,6 +16,7 @@
 #include "GLBuffer.h"
 #include "GLError.h"
 #include "GLUtil.h"
+#include "GLProgram.h"
 
 namespace ObjectiveGL {
 using namespace std;
@@ -64,6 +65,7 @@ protected:
                 count = elementBuffer->count;
             }
             glDrawElements(mode, count, eboType, nullptr);
+            checkError();
         } else {
             auto it = bufferMap.find(GL_ARRAY_BUFFER);
             auto vertexbuffer = it->second;
@@ -71,6 +73,7 @@ protected:
                 count = vertexbuffer->count;
             }
             glDrawArrays(mode, 0, count);
+            checkError();
         }
         
         glBindVertexArray(0);
@@ -89,12 +92,19 @@ public:
         checkError();
     }
     
-    void setBuffer(shared_ptr<GLBuffer> buffer) {
+    void setBuffer(GLenum type,shared_ptr<GLBuffer> buffer) {
         check();
         glBindVertexArray(vao);
-        glBindBuffer(buffer->bufferType, buffer->bufferID);
+        checkError();
+        if (type == GL_TRANSFORM_FEEDBACK_BUFFER) {
+            glBindBufferBase(type, 0, buffer->bufferID);
+        }
+        else {
+            glBindBuffer(type, buffer->bufferID);
+        }
+        checkError();
         glBindVertexArray(0);
-        bufferMap[buffer->bufferType] = buffer;
+        bufferMap[type] = buffer;
     }
     
     
@@ -128,6 +138,19 @@ public:
 
     void setDrawMode(GLenum mode) {
         this->mode = mode;
+    }
+    
+    void computeUsingTransformFeedback(shared_ptr<GLProgram> program) {
+        program->use();
+        glEnable(GL_RASTERIZER_DISCARD);
+        checkError();
+        glBeginTransformFeedback(mode);
+        checkError();
+        draw();
+        glEndTransformFeedback();
+        checkError();
+        glDisable(GL_RASTERIZER_DISCARD);
+        checkError();
     }
 };
 

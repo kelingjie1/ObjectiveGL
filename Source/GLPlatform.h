@@ -27,7 +27,7 @@ using namespace std;
 
 class GLShareGroup;
 class GLContext;
-    class GLTexture;
+class GLTexture;
     
 class GLPlatform {
 public:

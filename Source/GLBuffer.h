@@ -18,7 +18,7 @@ using namespace std;
 
 class GLBuffer : public GLShareObject {
 protected:
-    GLBuffer(GLenum bufferType) : bufferID(0), size(0), bufferType(bufferType) {
+    GLBuffer() : bufferID(0), size(0) {
         glGenBuffers(1, &bufferID);
         checkError();
     }
@@ -27,7 +27,6 @@ protected:
     
 public:
     GLuint bufferID;
-    const GLenum bufferType;
     GLsizei size;
     GLsizei elementSize;
     GLsizei count;
@@ -37,8 +36,8 @@ public:
         glDeleteBuffers(1, &bufferID);
     }
     
-    static shared_ptr<GLBuffer> create(GLenum bufferType) {
-        return shared_ptr<GLBuffer>(new GLBuffer(bufferType));
+    static shared_ptr<GLBuffer> create() {
+        return shared_ptr<GLBuffer>(new GLBuffer());
     }
     
     void alloc(GLsizei elementSize, GLsizei count, void *data = nullptr, GLenum usage = GL_STREAM_DRAW) {
@@ -46,11 +45,11 @@ public:
         this->count = count;
         this->elementSize = elementSize;
         size = elementSize*count;
-        glBindBuffer(bufferType, bufferID);
+        glBindBuffer(GL_ARRAY_BUFFER, bufferID);
         checkError();
-        glBufferData(bufferType, size, data, usage);
+        glBufferData(GL_ARRAY_BUFFER, size, data, usage);
         checkError();
-        glBindBuffer(bufferType, 0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
         checkError();
     }
 
@@ -68,22 +67,22 @@ public:
         if (length == 0) {
             length = size - offset;
         }
-        glBindBuffer(bufferType, bufferID);
+        glBindBuffer(GL_ARRAY_BUFFER, bufferID);
         checkError();
-        void *data = glMapBufferRange(bufferType, offset, length, access);
+        void *data = glMapBufferRange(GL_ARRAY_BUFFER, offset, length, access);
         checkError();
-        glBindBuffer(bufferType, 0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
         checkError();
         return data;
     }
 
     void unlock() {
         check();
-        glBindBuffer(bufferType, bufferID);
+        glBindBuffer(GL_ARRAY_BUFFER, bufferID);
         checkError();
-        glUnmapBuffer(bufferType);
+        glUnmapBuffer(GL_ARRAY_BUFFER);
         checkError();
-        glBindBuffer(bufferType, 0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
         checkError();
         
     }

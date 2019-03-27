@@ -11,7 +11,7 @@
 #include "GLPlatform.h"
 #include "GLUtil.h"
 #include "GLError.h"
-#include "GLObject.h"
+#include "GLTexture.h"
 #include <string>
 #include <memory>
 #include <fstream>
@@ -150,6 +150,7 @@ public:
     void use() {
         check();
         glUseProgram(programID);
+        checkError();
     }
 
     void setUniform(GLuint location, GLfloat x) {
