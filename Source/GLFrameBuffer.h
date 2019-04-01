@@ -19,6 +19,24 @@
 
 namespace ObjectiveGL {
 using namespace std;
+    
+    
+class GLDrawOption {
+public:
+    GLDrawOption():enableBlend(true),blendSrcFactor(GL_SRC_ALPHA),blendDstFactor(GL_ONE_MINUS_SRC_ALPHA) {}
+    bool enableBlend;
+    GLenum blendSrcFactor;
+    GLenum blendDstFactor;
+    void use() {
+        if (enableBlend) {
+            glEnable(GL_BLEND);
+            glBlendFunc(blendSrcFactor, blendDstFactor);
+        }
+        else {
+            glDisable(GL_BLEND);
+        }
+    }
+};
 
 class GLFrameBuffer : public GLShareObject {
     friend class GLContext;
@@ -76,11 +94,12 @@ public:
         glDrawBuffers(1, &buf);
     }
 
-    void draw(shared_ptr<GLProgram> program, shared_ptr<GLVertexArray> vao, GLsizei count = 0) {
+    void draw(shared_ptr<GLProgram> program, shared_ptr<GLVertexArray> vao,GLDrawOption option) {
         check();
         glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID);
         program->use();
-        vao->draw(count);
+        option.use();
+        vao->draw();
     }
     
     void clear(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)

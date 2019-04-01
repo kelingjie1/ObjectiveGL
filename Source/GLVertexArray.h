@@ -48,15 +48,18 @@ protected:
     
     GLenum mode;
     GLenum eboType;
+    GLsizei drawCount;
     map<GLenum,shared_ptr<GLBuffer>> bufferMap;
 
-    GLVertexArray():eboType(GL_UNSIGNED_INT) {
+    GLVertexArray():eboType(GL_UNSIGNED_INT),drawCount(0) {
         glGenVertexArrays(1, &vao);
         checkError();
     }
 
-    void draw(GLsizei count = 0) {
+
+    void draw() {
         check();
+        auto count = drawCount;
         glBindVertexArray(vao);
         auto it = bufferMap.find(GL_ELEMENT_ARRAY_BUFFER);
         if (it != bufferMap.end()) {
@@ -105,7 +108,9 @@ public:
         bufferMap[type] = buffer;
     }
     
-    
+    void setDrawCount(GLsizei drawCount) {
+        this->drawCount = drawCount;
+    }
 
 
     void setParams(vector<GLVertexArrayParams> params) {
