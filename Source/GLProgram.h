@@ -47,8 +47,6 @@ protected:
     void setUniform(GLuint location, function<void()> func) {
         check();
         uniformFunc[location] = func;
-        func();
-        checkError();
     }
 
 
