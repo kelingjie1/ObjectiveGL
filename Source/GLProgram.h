@@ -60,6 +60,7 @@ protected:
             texture->active(i);
             texture->bind();
             glUniform1i(location, i);
+            checkError();
         }
     }
     GLuint compileShader(string str,GLenum type) {
@@ -73,7 +74,7 @@ protected:
         glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
         if (!success) {
             glGetShaderInfoLog(shader, 512, nullptr, infoLog);
-            throw GLError(ObjectiveGLError_VertexShaderCompileFailed, infoLog);
+            throw GLError(ObjectiveGLError_ShaderCompileFailed, infoLog);
         }
         checkError();
         return shader;
@@ -139,7 +140,6 @@ public:
         checkError();
         glTransformFeedbackVaryings(programID, (GLsizei)varyings.size(), varyings.data(), bufferMode);
         checkError();
-        auto c = vs.c_str();
         link();
         type = GLProgramTypeTransformFeedback;
     }
@@ -149,17 +149,21 @@ public:
         check();
         glUseProgram(programID);
         checkError();
+        setUniformToGL();
+        
     }
 
     void setUniform(GLuint location, GLfloat x) {
         setUniform(location, [=] {
             glUniform1f(location, x);
+            checkError();
         });
     }
 
     void setUniform(GLuint location, GLfloat x, GLfloat y) {
         setUniform(location, [=] {
             glUniform2f(location, x, y);
+            checkError();
         });
 
     }
@@ -167,18 +171,21 @@ public:
     void setUniform(GLuint location, GLfloat x, GLfloat y, GLfloat z) {
         setUniform(location, [=] {
             glUniform3f(location, x, y, z);
+            checkError();
         });
     }
 
     void setUniform(GLuint location, GLfloat x, GLfloat y, GLfloat z, GLfloat w) {
         setUniform(location, [=] {
             glUniform4f(location, x, y, z, w);
+            checkError();
         });
     }
 
     void setUniform(GLuint location, GLint x) {
         setUniform(location, [=] {
             glUniform1i(location, x);
+            checkError();
         });
 
     }
@@ -186,6 +193,7 @@ public:
     void setUniform(GLuint location, GLint x, GLint y) {
         setUniform(location, [=] {
             glUniform2i(location, x, y);
+            checkError();
         });
 
     }
@@ -193,12 +201,14 @@ public:
     void setUniform(GLuint location, GLint x, GLint y, GLint z) {
         setUniform(location, [=] {
             glUniform3i(location, x, y, z);
+            checkError();
         });
     }
 
     void setUniform(GLuint location, GLint x, GLint y, GLint z, GLint w) {
         setUniform(location, [=] {
             glUniform4i(location, x, y, z, w);
+            checkError();
         });
         check();
 
@@ -207,39 +217,46 @@ public:
     void setUniform(GLuint location, GLuint x) {
         setUniform(location, [=] {
             glUniform1ui(location, x);
+            checkError();
         });
     }
 
     void setUniform(GLuint location, GLuint x, GLuint y) {
         setUniform(location, [=] {
             glUniform2ui(location, x, y);
+            checkError();
         });
     }
 
     void setUniform(GLuint location, GLuint x, GLuint y, GLuint z) {
         setUniform(location, [=] {
             glUniform3ui(location, x, y, z);
+            checkError();
         });
     }
 
     void setUniform(GLuint location, GLuint x, GLuint y, GLuint z, GLuint w) {
         setUniform(location, [=] {
             glUniform4ui(location, x, y, z, w);
+            checkError();
         });
     }
 
     void setUniform(GLuint location, vector<GLfloat> matrix) {
         if (matrix.size() == 4) {
             setUniform(location, [=] {
-                glUniformMatrix2fv(location, (GLsizei) matrix.size(), false, matrix.data());
+                glUniformMatrix2fv(location, 1, false, matrix.data());
+                checkError();
             });
         } else if (matrix.size() == 9) {
             setUniform(location, [=] {
-                glUniformMatrix3fv(location, (GLsizei) matrix.size(), false, matrix.data());
+                glUniformMatrix3fv(location, 1, false, matrix.data());
+                checkError();
             });
         } else if (matrix.size() == 16) {
             setUniform(location, [=] {
-                glUniformMatrix4fv(location, (GLsizei) matrix.size(), false, matrix.data());
+                glUniformMatrix4fv(location, 1, false, matrix.data());
+                checkError();
             });
         } else {
             throw GLError(ObjectiveGLError_InvalidData);

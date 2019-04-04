@@ -17,8 +17,7 @@ enum ObjectiveGLError {
     ObjectiveGLError_ContextCheckFailed,
     ObjectiveGLError_GLError,
     ObjectiveGLError_InvalidType,
-    ObjectiveGLError_VertexShaderCompileFailed,
-    ObjectiveGLError_FragmentShaderCompileFailed,
+    ObjectiveGLError_ShaderCompileFailed,
     ObjectiveGLError_ProgramLinkFailed,
     ObjectiveGLError_InvalidData,
 };
