@@ -35,7 +35,7 @@ class GLProgram : public GLObject {
 protected:
     GLProgramType type;
     map <GLuint, function<void()>> uniformFunc;
-    vector<pair<GLuint, shared_ptr<GLTexture>>> textures;
+    vector<pair<GLuint, vector<shared_ptr<GLTexture>>>> textureList;
 
     GLProgram() : programID(glCreateProgram()), vertexShaderID(0), fragmentShaderID(0) {}
 
@@ -54,12 +54,21 @@ protected:
         for (auto &uniform:uniformFunc) {
             uniform.second();
         }
-        for (int i = 0; i < textures.size(); i++) {
-            auto texture = textures[i].second;
-            auto location = textures[i].first;
-            texture->active(i);
-            texture->bind();
-            glUniform1i(location, i);
+        int index = 0;
+        for (int i = 0; i < textureList.size(); i++) {
+            auto textures = textureList[i].second;
+            auto location = textureList[i].first;
+            vector<GLint> v;
+            for (int i=0; i<textures.size(); i++) {
+                auto texture = textures[i];
+                if (texture) {
+                    v.push_back(index);
+                    texture->active(index);
+                    texture->bind();
+                    index++;
+                }
+            }
+            setUniform(location, v);
             checkError();
         }
     }
@@ -241,8 +250,62 @@ public:
             checkError();
         });
     }
+    
+    void setUniform(GLuint location, vector<GLfloat> v,int size = 1) {
+        if (size == 1) {
+            setUniform(location, [=] {
+                glUniform1fv(location, (GLsizei)v.size(), v.data());
+                checkError();
+            });
+        }
+        else if (size == 2) {
+            setUniform(location, [=] {
+                glUniform2fv(location, (GLsizei)v.size(), v.data());
+                checkError();
+            });
+        }
+        else if (size == 3) {
+            setUniform(location, [=] {
+                glUniform3fv(location, (GLsizei)v.size(), v.data());
+                checkError();
+            });
+        }
+        else if (size == 4) {
+            setUniform(location, [=] {
+                glUniform4fv(location, (GLsizei)v.size(), v.data());
+                checkError();
+            });
+        }
+    }
+    
+    void setUniform(GLuint location, vector<GLint> v,int size = 1) {
+        if (size == 1) {
+            setUniform(location, [=] {
+                glUniform1iv(location, (GLsizei)v.size(), v.data());
+                checkError();
+            });
+        }
+        else if (size == 2) {
+            setUniform(location, [=] {
+                glUniform2iv(location, (GLsizei)v.size(), v.data());
+                checkError();
+            });
+        }
+        else if (size == 3) {
+            setUniform(location, [=] {
+                glUniform3iv(location, (GLsizei)v.size(), v.data());
+                checkError();
+            });
+        }
+        else if (size == 4) {
+            setUniform(location, [=] {
+                glUniform4iv(location, (GLsizei)v.size(), v.data());
+                checkError();
+            });
+        }
+    }
 
-    void setUniform(GLuint location, vector<GLfloat> matrix) {
+    void setUniformMatrix(GLuint location, vector<GLfloat> matrix) {
         if (matrix.size() == 4) {
             setUniform(location, [=] {
                 glUniformMatrix2fv(location, 1, false, matrix.data());
@@ -330,25 +393,36 @@ public:
         setUniform(location, x, y, z, w);
     }
 
-    void setUniform(string name, vector<GLfloat> matrix) {
+    void setUniformMatrix(string name, vector<GLfloat> matrix) {
         auto location = getUniformLocation(name);
-        setUniform(location, matrix);
+        setUniformMatrix(location, matrix);
+    }
+    
+    void setUniform(string name, vector<GLfloat> v, int size = 1) {
+        auto location = getUniformLocation(name);
+        setUniform(location, v, size);
+    }
+    
+    void setUniform(string name, vector<GLint> v, int size = 1) {
+        auto location = getUniformLocation(name);
+        setUniform(location, v, size);
+    }
+    
+    void setTexture(string name, shared_ptr<GLTexture> texture) {
+        setTextures(name, {texture});
     }
 
-    void setTexture(string name, shared_ptr<GLTexture> texture) {
+    void setTextures(string name, vector<shared_ptr<GLTexture>> textures) {
         auto location = getUniformLocation(name);
         bool found = false;
-        for (int i = 0; i < textures.size(); i++) {
-            if (textures[i].first == location) {
+        for (int i = 0; i < textureList.size(); i++) {
+            if (textureList[i].first == location) {
                 found = true;
-                textures[i].second = texture;
-                texture->active(i);
-                texture->bind();
-                glUniform1i(location, i);
+                textureList[i].second = textures;
             }
         }
         if (!found) {
-            textures.push_back(pair<GLuint, shared_ptr<GLTexture>>(location, texture));
+            textureList.push_back(make_pair(location, textures));
         }
     }
 };
