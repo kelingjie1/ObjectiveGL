@@ -23,10 +23,12 @@ using namespace std;
     
 class GLDrawOption {
 public:
-    GLDrawOption():enableBlend(true),blendSrcFactor(GL_SRC_ALPHA),blendDstFactor(GL_ONE_MINUS_SRC_ALPHA) {}
-    bool enableBlend;
-    GLenum blendSrcFactor;
-    GLenum blendDstFactor;
+    GLDrawOption(){}
+    bool enableBlend = true;
+    GLenum blendSrcFactor = GL_SRC_ALPHA;
+    GLenum blendDstFactor = GL_ONE_MINUS_SRC_ALPHA;
+    
+    bool enableDepthTest;
     void use() {
         if (enableBlend) {
             glEnable(GL_BLEND);
@@ -34,6 +36,13 @@ public:
         }
         else {
             glDisable(GL_BLEND);
+        }
+        
+        if (enableDepthTest) {
+            glEnable(GL_DEPTH_TEST);
+        }
+        else {
+            glDisable(GL_DEPTH_TEST);
         }
     }
 };
