@@ -65,7 +65,7 @@ public:
         
     }
     
-    static shared_ptr<GLFrameBuffer> create(int backendFrameBuffer) {
+    static shared_ptr<GLFrameBuffer> create(int backendFrameBuffer = -1) {
         return shared_ptr<GLFrameBuffer>(new GLFrameBuffer(backendFrameBuffer));
     }
 
