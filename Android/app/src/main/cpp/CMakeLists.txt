@@ -7,8 +7,8 @@ cmake_minimum_required(VERSION 3.4.1)
 
 file(GLOB_RECURSE SRC_FILES
         *.cpp
-        ../../../../../Source/*.cpp
-        ../../../../../Source/platform/android/*.cpp)
+        ${PROJECT_ROOT}/Source/*.cpp
+        ${PROJECT_ROOT}/Source/platform/android/*.cpp)
 
 # Creates and names a library, sets it as either STATIC
 # or SHARED, and provides the relative paths to its source code.
@@ -23,6 +23,11 @@ add_library( # Sets the name of the library.
 
              # Provides a relative path to your source file(s).
             ${SRC_FILES} )
+
+target_include_directories(
+        objective-gl
+        PRIVATE
+        "${PROJECT_ROOT}/Source/")
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by

@@ -8,7 +8,7 @@ std::shared_ptr<ObjectiveGL::GLShareGroup> ObjectiveGL::GLPlatform::createShareG
     return std::shared_ptr<ObjectiveGL::GLShareGroup>();
 }
 
-void *ObjectiveGL::GLPlatform::createContext(ObjectiveGL::GLContext *context, ObjectiveGL::GLShareGroup *shareGroup) {
+void *ObjectiveGL::GLPlatform::createContext(ObjectiveGL::GLShareGroup *shareGroup) {
     return nullptr;
 }
 
