@@ -22,6 +22,9 @@
 #include <memory>
 #include <string>
 
+typedef int GLShareGroupID;
+typedef int GLContextID;
+
 namespace ObjectiveGL {
 using namespace std;
 
@@ -31,13 +34,15 @@ class GLTexture;
     
 class GLPlatform {
 public:
-    static shared_ptr<GLShareGroup> createShareGroup();
+    static GLShareGroupID createShareGroup();
+    
+    static void releaseShareGroup(GLShareGroupID shareGroupID);
 
-    static void *createContext(GLShareGroup *shareGroup);
+    static GLContextID createContext(GLShareGroupID shareGroupID = 0);
 
-    static void setContext(void *context);
-
-    static void releaseContext(void *context);
+    static void releaseContext(GLContextID contextID);
+    
+    static void setContext(GLContextID contextID);
     
     static shared_ptr<GLTexture> createTextureFromFile(string file);
     

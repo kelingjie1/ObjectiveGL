@@ -33,9 +33,15 @@ class GLShareGroup {
 protected:
     GLShareGroup(){};
 public:
-    void *sharegroup;
+    GLShareGroupID shareGroupID;
     static shared_ptr<GLShareGroup> create() {
-        return GLPlatform::createShareGroup();
+        auto sharegroup = new GLShareGroup();
+        sharegroup->shareGroupID = GLPlatform::createShareGroup();
+        return shared_ptr<GLShareGroup>(sharegroup);
+    }
+    
+    ~GLShareGroup() {
+        GLPlatform::releaseShareGroup(shareGroupID);
     }
 };
 
@@ -49,15 +55,20 @@ class GLContext : public enable_shared_from_this<GLContext> {
     }
 
     GLContext(shared_ptr<GLShareGroup> sharegroup) {
-        context = GLPlatform::createContext(sharegroup.get());
+        if (sharegroup) {
+            contextID = GLPlatform::createContext(sharegroup->shareGroupID);
+        }
+        else {
+            contextID = GLPlatform::createContext();
+        }
     }
 
 public:
     shared_ptr<GLShareGroup> sharegroup;
-    void *context;
+    GLContextID contextID;
     
     ~GLContext() {
-        GLPlatform::releaseContext(this->context);
+        GLPlatform::releaseContext(contextID);
     }
 
     static shared_ptr<GLContext> current() {
@@ -71,7 +82,7 @@ public:
 
     void setCurrent() {
         auto s = shared_from_this();
-        GLPlatform::setContext(this->context);
+        GLPlatform::setContext(contextID);
         currentContext() = s;
     }
 

@@ -11,33 +11,43 @@
 #include "GLContext.h"
 #include "GLTexture.h"
 #include <UIKit/UIKit.h>
+#include <map>
 
 using namespace ObjectiveGL;
 
-shared_ptr<GLShareGroup> GLPlatform::createShareGroup() {
-    auto sharegroup = shared_ptr<GLShareGroup>(new GLShareGroup());
-    sharegroup->sharegroup = (__bridge_retained void *)[[EAGLSharegroup alloc] init];
-    return sharegroup;
+static map<GLShareGroupID,EAGLSharegroup*> shareGroups;
+static map<GLContextID,EAGLContext*> contexts;
+
+GLShareGroupID GLPlatform::createShareGroup() {
+    GLShareGroupID glid = rand();
+    shareGroups[glid] = [[EAGLSharegroup alloc] init];
+    return glid;
 }
 
-void *GLPlatform::createContext(GLShareGroup *shareGroup) {
-    void *context;
-    if (!shareGroup) {
-        context = (__bridge_retained void *)[[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];
+void GLPlatform::releaseShareGroup(GLShareGroupID shareGroupID) {
+    shareGroups.erase(shareGroupID);
+}
+
+GLContextID GLPlatform::createContext(GLShareGroupID shareGroupID) {
+    GLContextID glid = rand();
+    EAGLContext *context;
+    if (!shareGroupID) {
+        context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];
     }
     else {
-        context = (__bridge_retained void *)[[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3 sharegroup:(__bridge EAGLSharegroup*)shareGroup->sharegroup];
+        context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3 sharegroup:shareGroups[shareGroupID]];
     }
-    return context;
+    contexts[glid] = context;
+    return glid;
 }
 
-void GLPlatform::setContext(void *context) {
-    [EAGLContext setCurrentContext:(__bridge EAGLContext*)context];
+void GLPlatform::setContext(GLContextID contextID) {
+    EAGLContext *eaglcontext = contexts[contextID];
+    [EAGLContext setCurrentContext:eaglcontext];
 }
 
-void GLPlatform::releaseContext(void *context) {
-    [EAGLContext setCurrentContext:nil];
-    CFRelease(context);
+void GLPlatform::releaseContext(GLContextID contextID) {
+    contexts.erase(contextID);
 }
 
 shared_ptr<GLTexture> GLPlatform::createTextureFromFile(string file) {
