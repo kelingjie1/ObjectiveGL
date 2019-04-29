@@ -81,7 +81,7 @@ public:
     void setColorTextures(vector<shared_ptr<GLTexture> > textures) {
         glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID);
         vector<GLenum> bufs;
-        for (int i = 0; i < textures.size(); i++) {
+        for (int i = 0; i < (int)textures.size(); i++) {
             bufs.push_back(GL_COLOR_ATTACHMENT0 + i);
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D,
                                    textures[i]->textureID, 0);

@@ -31,8 +31,8 @@ public:
 
 class GLVertexArrayParams {
 public:
-    GLint size;//1、2、3、4
     GLenum type;//GL_FLOAT/GL_INT
+    GLint size;//1、2、3、4
     GLboolean normalized;
 
     GLVertexArrayParams(GLenum type,GLint size = 1,
@@ -118,7 +118,7 @@ public:
         glBindVertexArray(vao);
         GLuint offset = 0;
         auto vertexBuffer= bufferMap[GL_ARRAY_BUFFER];
-        for (int i = 0; i < params.size(); i++) {
+        for (int i = 0; i < (int)params.size(); i++) {
             glEnableVertexAttribArray(i);
             auto param = params[i];
             GLsizei stride = vertexBuffer->elementSize;
@@ -129,7 +129,7 @@ public:
         }
         GLint maxAttributes = 0;
         glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &maxAttributes);
-        for (GLuint i = (GLuint) params.size(); i < maxAttributes; i++) {
+        for (GLint i = (GLint) params.size(); i < maxAttributes; i++) {
             glDisableVertexAttribArray(i);
         }
         glBindVertexArray(0);

@@ -48,8 +48,9 @@ protected:
     }
 
 public:
-    shared_ptr<GLShareGroup> sharegroup;
     GLContextID contextID;
+    shared_ptr<GLShareGroup> sharegroup;
+
     
     virtual ~GLContext() {
         
