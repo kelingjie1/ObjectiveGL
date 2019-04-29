@@ -7,11 +7,18 @@
 //
 
 #pragma once
+#ifdef QT
+#include <QtGui/qopengl.h>
+#elif __APPLE__
 
-#if IOS
+#ifdef TARGET_OS_IPHONE
 
 #include <OpenGLES/ES3/gl.h>
 #include <OpenGLES/ES3/glext.h>
+
+#else
+
+#endif
 
 #else
 
