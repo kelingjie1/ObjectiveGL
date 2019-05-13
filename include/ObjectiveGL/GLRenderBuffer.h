@@ -25,7 +25,7 @@ protected:
             renderBufferID = backendRenderBuffer;
         }
         else {
-            glGenRenderbuffers(1, &renderBufferID);
+            OGL(glGenRenderbuffers(1, &renderBufferID));
         }
         
     }
@@ -35,7 +35,7 @@ public:
 
     ~GLRenderBuffer() {
         check();
-        glDeleteRenderbuffers(1, &renderBufferID);
+        OGL(glDeleteRenderbuffers(1, &renderBufferID));
     }
 };
 }
