@@ -19,7 +19,7 @@ using namespace std;
 class GLBuffer : public GLShareObject {
 protected:
     GLBuffer() : bufferID(0), size(0) {
-        glGenBuffers(1, &bufferID);
+        OGL(glGenBuffers(1, &bufferID));
         checkError();
     }
 
@@ -33,7 +33,7 @@ public:
     
     ~GLBuffer() {
         check();
-        glDeleteBuffers(1, &bufferID);
+        OGL(glDeleteBuffers(1, &bufferID));
     }
     
     static shared_ptr<GLBuffer> create() {
@@ -45,11 +45,11 @@ public:
         this->count = count;
         this->elementSize = elementSize;
         size = elementSize*count;
-        glBindBuffer(GL_ARRAY_BUFFER, bufferID);
+        OGL(glBindBuffer(GL_ARRAY_BUFFER, bufferID));
         checkError();
-        glBufferData(GL_ARRAY_BUFFER, size, data, usage);
+        OGL(glBufferData(GL_ARRAY_BUFFER, size, data, usage));
         checkError();
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        OGL(glBindBuffer(GL_ARRAY_BUFFER, 0));
         checkError();
     }
 
@@ -67,33 +67,33 @@ public:
         if (length == 0) {
             length = size - offset;
         }
-        glBindBuffer(GL_ARRAY_BUFFER, bufferID);
+        OGL(glBindBuffer(GL_ARRAY_BUFFER, bufferID));
         checkError();
-        void *data = glMapBufferRange(GL_ARRAY_BUFFER, offset, length, access);
+        void *data = OGL(glMapBufferRange(GL_ARRAY_BUFFER, offset, length, access));
         checkError();
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        OGL(glBindBuffer(GL_ARRAY_BUFFER, 0));
         checkError();
         return data;
     }
 
     void unlock() {
         check();
-        glBindBuffer(GL_ARRAY_BUFFER, bufferID);
+        OGL(glBindBuffer(GL_ARRAY_BUFFER, bufferID));
         checkError();
-        glUnmapBuffer(GL_ARRAY_BUFFER);
+        OGL(glUnmapBuffer(GL_ARRAY_BUFFER));
         checkError();
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        OGL(glBindBuffer(GL_ARRAY_BUFFER, 0));
         checkError();
         
     }
     
     void copyFromBuffer(shared_ptr<GLBuffer> buffer,GLuint readOffset=0,GLuint writeOffset=0,GLsizei size=0) {
-        glBindBuffer(GL_COPY_READ_BUFFER, buffer->bufferID);
-        glBindBuffer(GL_COPY_WRITE_BUFFER, bufferID);
+        OGL(glBindBuffer(GL_COPY_READ_BUFFER, buffer->bufferID));
+        OGL(glBindBuffer(GL_COPY_WRITE_BUFFER, bufferID));
         if (size == 0) {
             size = min(buffer->size,this->size);
         }
-        glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, readOffset, writeOffset, size);
+        OGL(glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, readOffset, writeOffset, size));
     }
 };
 

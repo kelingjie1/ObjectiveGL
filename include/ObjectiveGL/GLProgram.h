@@ -55,11 +55,11 @@ protected:
             uniform.second();
         }
         int index = 0;
-        for (int i = 0; i < textureList.size(); i++) {
+        for (int i = 0; i < (int)textureList.size(); i++) {
             auto textures = textureList[i].second;
             auto location = textureList[i].first;
             vector<GLint> v;
-            for (int i=0; i<textures.size(); i++) {
+            for (int i=0; i<(int)textures.size(); i++) {
                 auto texture = textures[i];
                 if (texture) {
                     v.push_back(index);
@@ -415,7 +415,7 @@ public:
     void setTextures(string name, vector<shared_ptr<GLTexture>> textures) {
         auto location = getUniformLocation(name);
         bool found = false;
-        for (int i = 0; i < textureList.size(); i++) {
+        for (int i = 0; i < (int)textureList.size(); i++) {
             if (textureList[i].first == location) {
                 found = true;
                 textureList[i].second = textures;

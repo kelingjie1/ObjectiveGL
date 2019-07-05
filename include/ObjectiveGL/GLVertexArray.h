@@ -31,8 +31,8 @@ public:
 
 class GLVertexArrayParams {
 public:
-    GLint size;//1、2、3、4
     GLenum type;//GL_FLOAT/GL_INT
+    GLint size;//1、2、3、4
     GLboolean normalized;
 
     GLVertexArrayParams(GLenum type,GLint size = 1,
@@ -52,7 +52,7 @@ protected:
     map<GLenum,shared_ptr<GLBuffer>> bufferMap;
 
     GLVertexArray():eboType(GL_UNSIGNED_INT),drawCount(0) {
-        glGenVertexArrays(1, &vao);
+        OGL(glGenVertexArrays(1, &vao));
         checkError();
     }
 
@@ -60,14 +60,14 @@ protected:
     void draw() {
         check();
         auto count = drawCount;
-        glBindVertexArray(vao);
+        OGL(glBindVertexArray(vao));
         auto it = bufferMap.find(GL_ELEMENT_ARRAY_BUFFER);
         if (it != bufferMap.end()) {
             auto elementBuffer = it->second;
             if (count == 0) {
                 count = elementBuffer->count;
             }
-            glDrawElements(mode, count, eboType, nullptr);
+            OGL(glDrawElements(mode, count, eboType, nullptr));
             checkError();
         } else {
             auto it = bufferMap.find(GL_ARRAY_BUFFER);
@@ -75,11 +75,11 @@ protected:
             if (count == 0) {
                 count = vertexbuffer->count;
             }
-            glDrawArrays(mode, 0, count);
+            OGL(glDrawArrays(mode, 0, count));
             checkError();
         }
         
-        glBindVertexArray(0);
+        OGL(glBindVertexArray(0));
     }
     
 public:
@@ -91,19 +91,19 @@ public:
 
     ~GLVertexArray() {
         check();
-        glDeleteVertexArrays(1, &vao);
+        OGL(glDeleteVertexArrays(1, &vao));
         checkError();
     }
     
     void setBuffer(GLenum type,shared_ptr<GLBuffer> buffer) {
         check();
-        glBindVertexArray(vao);
+        OGL(glBindVertexArray(vao));
         checkError();
         if (type != GL_TRANSFORM_FEEDBACK_BUFFER) {
-            glBindBuffer(type, buffer->bufferID);
+            OGL(glBindBuffer(type, buffer->bufferID));
         }
         checkError();
-        glBindVertexArray(0);
+        OGL(glBindVertexArray(0));
         checkError();
         bufferMap[type] = buffer;
     }
@@ -115,11 +115,11 @@ public:
 
     void setParams(vector<GLVertexArrayParams> params) {
         check();
-        glBindVertexArray(vao);
+        OGL(glBindVertexArray(vao));
         GLuint offset = 0;
         auto vertexBuffer= bufferMap[GL_ARRAY_BUFFER];
-        for (int i = 0; i < params.size(); i++) {
-            glEnableVertexAttribArray(i);
+        for (int i = 0; i < (int)params.size(); i++) {
+            OGL(glEnableVertexAttribArray(i));
             auto param = params[i];
             GLsizei stride = vertexBuffer->elementSize;
             GLvoid *of = reinterpret_cast<GLvoid *>(offset);
@@ -128,11 +128,11 @@ public:
             offset += Util::sizeOfGLType(param.type) * param.size;
         }
         GLint maxAttributes = 0;
-        glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &maxAttributes);
-        for (GLuint i = (GLuint) params.size(); i < maxAttributes; i++) {
-            glDisableVertexAttribArray(i);
+        OGL(glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &maxAttributes));
+        for (GLint i = (GLint) params.size(); i < maxAttributes; i++) {
+            OGL(glDisableVertexAttribArray(i));
         }
-        glBindVertexArray(0);
+        OGL(glBindVertexArray(0));
     }
     
     void setElementBufferType(GLenum type) {
@@ -145,19 +145,19 @@ public:
     
     void computeUsingTransformFeedback(shared_ptr<GLProgram> program) {
         program->use();
-        glEnable(GL_RASTERIZER_DISCARD);
+        OGL(glEnable(GL_RASTERIZER_DISCARD));
         checkError();
         auto buffer = bufferMap[GL_TRANSFORM_FEEDBACK_BUFFER];
-        glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, buffer->bufferID);
+        OGL(glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, buffer->bufferID));
         checkError();
-        glBeginTransformFeedback(mode);
+        OGL(glBeginTransformFeedback(mode));
         checkError();
         draw();
-        glEndTransformFeedback();
+        OGL(glEndTransformFeedback());
         checkError();
-        glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, 0);
+        OGL(glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, 0));
         checkError();
-        glDisable(GL_RASTERIZER_DISCARD);
+        OGL(glDisable(GL_RASTERIZER_DISCARD));
         checkError();
     }
 };

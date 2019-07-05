@@ -31,18 +31,18 @@ public:
     bool enableDepthTest;
     void use() {
         if (enableBlend) {
-            glEnable(GL_BLEND);
-            glBlendFunc(blendSrcFactor, blendDstFactor);
+            OGL(glEnable(GL_BLEND));
+            OGL(glBlendFunc(blendSrcFactor, blendDstFactor));
         }
         else {
-            glDisable(GL_BLEND);
+            OGL(glDisable(GL_BLEND));
         }
         
         if (enableDepthTest) {
-            glEnable(GL_DEPTH_TEST);
+            OGL(glEnable(GL_DEPTH_TEST));
         }
         else {
-            glDisable(GL_DEPTH_TEST);
+            OGL(glDisable(GL_DEPTH_TEST));
         }
     }
 };
@@ -54,7 +54,7 @@ protected:
     bool isBackend;
     GLFrameBuffer(int backendFrameBuffer) {
         if (backendFrameBuffer<0) {
-            glGenBuffers(1, &frameBufferID);
+            OGL(glGenBuffers(1, &frameBufferID));
             isBackend = false;
         }
         else {
@@ -69,7 +69,7 @@ public:
     ~GLFrameBuffer() {
         if (!isBackend) {
             context->check();
-            glDeleteBuffers(1, &frameBufferID);
+            OGL(glDeleteBuffers(1, &frameBufferID));
         }
         
     }
@@ -79,14 +79,14 @@ public:
     }
 
     void setColorTextures(vector<shared_ptr<GLTexture> > textures) {
-        glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID);
+        OGL(glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID));
         vector<GLenum> bufs;
-        for (int i = 0; i < textures.size(); i++) {
+        for (int i = 0; i < (int)textures.size(); i++) {
             bufs.push_back(GL_COLOR_ATTACHMENT0 + i);
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D,
                                    textures[i]->textureID, 0);
         }
-        glDrawBuffers((GLsizei) textures.size(), bufs.data());
+        OGL(glDrawBuffers((GLsizei) textures.size(), bufs.data()));
     }
 
     void setColorTexture(shared_ptr<GLTexture> texture) {
@@ -96,16 +96,16 @@ public:
     }
 
     void setRenderBuffer(shared_ptr<GLRenderBuffer> renderBuffer) {
-        glBindBuffer(GL_FRAMEBUFFER, frameBufferID);
+        OGL(glBindBuffer(GL_FRAMEBUFFER, frameBufferID));
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER,
                                   renderBuffer->renderBufferID);
         GLenum buf = GL_COLOR_ATTACHMENT0;
-        glDrawBuffers(1, &buf);
+        OGL(glDrawBuffers(1, &buf));
     }
 
     void draw(shared_ptr<GLProgram> program, shared_ptr<GLVertexArray> vao,GLDrawOption option) {
         check();
-        glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID);
+        OGL(glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID));
         program->use();
         option.use();
         vao->draw();
@@ -114,10 +114,10 @@ public:
     void clear(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
     {
         check();
-        glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID);
+        OGL(glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID));
         checkError();
-        glClearColor(red, green, blue, alpha);
-        glClear(GL_COLOR_BUFFER_BIT);
+        OGL(glClearColor(red, green, blue, alpha));
+        OGL(glClear(GL_COLOR_BUFFER_BIT));
     }
 
 };

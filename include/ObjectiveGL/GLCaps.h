@@ -17,7 +17,7 @@ using namespace std;
 class GLCaps {
     static GLint MAJOR_VERSION() {
         GLint value;
-        glGetIntegerv(GL_MAJOR_VERSION, &value);
+        OGL(glGetIntegerv(GL_MAJOR_VERSION, &value));
         return value;
     }
 };

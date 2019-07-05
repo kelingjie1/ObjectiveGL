@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "GLPlatform.h"
 #include <exception>
 #include <string>
 

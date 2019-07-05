@@ -17,7 +17,7 @@ class GLTexture : public GLShareObject {
 
 protected:
     GLTexture() {
-        glGenTextures(1, &textureID);
+        OGL(glGenTextures(1, &textureID));
     }
 
 public:
@@ -30,33 +30,33 @@ public:
 
     ~GLTexture() {
         check();
-        glDeleteTextures(1, &textureID);
+        OGL(glDeleteTextures(1, &textureID));
     }
 
 
     void setImageData(const GLvoid *pixels, GLsizei width, GLsizei height,
                       GLenum internalformat = GL_RGBA, GLenum format = GL_RGBA) {
         check();
-        glBindTexture(GL_TEXTURE_2D, textureID);
+        OGL(glBindTexture(GL_TEXTURE_2D, textureID));
         checkError();
         glTexImage2D(GL_TEXTURE_2D, 0, internalformat, width, height, 0, format,
                      GL_UNSIGNED_BYTE, pixels);
         checkError();
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glBindTexture(GL_TEXTURE_2D, 0);
+        OGL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+        OGL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+        OGL(glBindTexture(GL_TEXTURE_2D, 0));
     }
 
     void active(GLuint index) {
         check();
-        glActiveTexture(GL_TEXTURE0 + index);
+        OGL(glActiveTexture(GL_TEXTURE0 + index));
         checkError();
 
     }
 
     void bind() {
         check();
-        glBindTexture(GL_TEXTURE_2D, textureID);
+        OGL(glBindTexture(GL_TEXTURE_2D, textureID));
         checkError();
     }
 };
