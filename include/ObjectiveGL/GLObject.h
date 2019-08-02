@@ -35,7 +35,7 @@ public:
     void checkError() {
         auto error = OGL(glGetError());
         if (error) {
-            throw GLError(ObjectiveGLError_GLError, error);
+            OGLTHROW(GLError(ObjectiveGLError_GLError, error));
         }
     }
 

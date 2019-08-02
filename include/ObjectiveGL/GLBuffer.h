@@ -40,7 +40,7 @@ public:
         return shared_ptr<GLBuffer>(new GLBuffer());
     }
     
-    void alloc(GLsizei elementSize, GLsizei count, void *data = nullptr, GLenum usage = GL_STREAM_DRAW) {
+    void alloc(GLsizei elementSize, GLsizei count, const void *data = nullptr, GLenum usage = GL_STREAM_DRAW) {
         check();
         this->count = count;
         this->elementSize = elementSize;
@@ -52,7 +52,18 @@ public:
         OGL(glBindBuffer(GL_ARRAY_BUFFER, 0));
         checkError();
     }
-
+    
+    void replaceData(GLintptr offset, GLsizei count, const GLvoid *data) {
+        check();
+        size = elementSize*count;
+        OGL(glBindBuffer(GL_ARRAY_BUFFER, bufferID));
+        checkError();
+        OGL(glBufferSubData(GL_ARRAY_BUFFER, offset, size, data));
+        checkError();
+        OGL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+        checkError();
+    }
+#ifdef ES3
     void accessData(function<void(void *data)> func, GLuint offset = 0, GLuint length = 0,
                     GLbitfield access = GL_MAP_READ_BIT | GL_MAP_WRITE_BIT) {
         check();
@@ -95,6 +106,7 @@ public:
         }
         OGL(glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, readOffset, writeOffset, size));
     }
+#endif
 };
 
 }

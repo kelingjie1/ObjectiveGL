@@ -11,6 +11,17 @@
 #include "GLPlatform.h"
 #include <exception>
 #include <string>
+#include <assert.h>
+
+#ifndef _LIBCPP_NO_EXCEPTIONS
+
+#define OGLTHROW(x) assert(!#x)
+
+#else
+
+#define OGLTHROW(x) throw x
+
+#endif
 
 namespace ObjectiveGL {
 using namespace std;
@@ -21,6 +32,7 @@ enum ObjectiveGLError {
     ObjectiveGLError_ShaderCompileFailed,
     ObjectiveGLError_ProgramLinkFailed,
     ObjectiveGLError_InvalidData,
+    ObjectiveGLError_LocationNotFound,
 };
 
 class GLError : exception {

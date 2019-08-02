@@ -84,7 +84,7 @@ public:
             case GL_FIXED:
                 return sizeof(GLfixed);
         }
-        throw GLError(ObjectiveGLError_InvalidType);
+        OGLTHROW(GLError(ObjectiveGLError_InvalidType));
         return 0;
     }
 };

@@ -10,6 +10,7 @@
 #include "GLPlatform.h"
 #include "GLError.h"
 #include <iostream>
+#include <cstdlib>
 
 typedef int GLShareGroupID;
 typedef int GLContextID;
@@ -79,7 +80,7 @@ public:
         }
         
         if (failed) {
-            throw GLError(ObjectiveGLError_ContextCheckFailed);
+            OGLTHROW(GLError(ObjectiveGLError_ContextCheckFailed));
         }
     }
 };

@@ -16,21 +16,33 @@ class GLTexture : public GLShareObject {
     friend class GLContext;
 
 protected:
-    GLTexture() {
-        OGL(glGenTextures(1, &textureID));
+    GLTexture(int backendTexture = -1) {
+        if (backendTexture < 0) {
+            OGL(glGenTextures(1, &textureID));
+            checkError();
+        }
+        else {
+            textureID = backendTexture;
+            isBackend = true;
+        }
+        
     }
 
 public:
 
     GLuint textureID;
-    
-    static shared_ptr<GLTexture> create() {
-        return shared_ptr<GLTexture>(new GLTexture());
+    bool isBackend = false;
+    static shared_ptr<GLTexture> create(int backendTexture = -1) {
+        return shared_ptr<GLTexture>(new GLTexture(backendTexture));
     }
 
     ~GLTexture() {
         check();
-        OGL(glDeleteTextures(1, &textureID));
+        if (!isBackend) {
+            OGL(glDeleteTextures(1, &textureID));
+            checkError();
+        }
+        
     }
 
 

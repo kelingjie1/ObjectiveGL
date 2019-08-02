@@ -83,7 +83,7 @@ protected:
         glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
         if (!success) {
             glGetShaderInfoLog(shader, 512, nullptr, infoLog);
-            throw GLError(ObjectiveGLError_ShaderCompileFailed, infoLog);
+            OGLTHROW(GLError(ObjectiveGLError_ShaderCompileFailed, infoLog));
         }
         checkError();
         return shader;
@@ -96,7 +96,7 @@ protected:
         glGetProgramiv(programID, GL_LINK_STATUS, &linked);
         if (!linked) {
             glGetProgramInfoLog(programID, 512, nullptr, infoLog);
-            throw GLError(ObjectiveGLError_ProgramLinkFailed, infoLog);
+            OGLTHROW(GLError(ObjectiveGLError_ProgramLinkFailed, infoLog));
         }
     }
 
@@ -139,7 +139,7 @@ public:
         link();
         type = GLProgramTypeRender;
     }
-    
+#ifdef ES3
     void setTransformFeedbackShader(string vs,vector<const GLchar*> varyings,GLenum bufferMode = GL_INTERLEAVED_ATTRIBS) {
         vertexShaderID = compileShader(vs, GL_VERTEX_SHADER);
         glAttachShader(programID, vertexShaderID);
@@ -152,6 +152,7 @@ public:
         link();
         type = GLProgramTypeTransformFeedback;
     }
+#endif
 
 
     void use() {
@@ -159,7 +160,6 @@ public:
         glUseProgram(programID);
         checkError();
         setUniformToGL();
-        
     }
 
     void setUniform(GLuint location, GLfloat x) {
@@ -222,13 +222,14 @@ public:
         check();
 
     }
-
+#ifdef ES3
     void setUniform(GLuint location, GLuint x) {
         setUniform(location, [=] {
             glUniform1ui(location, x);
             checkError();
         });
     }
+
 
     void setUniform(GLuint location, GLuint x, GLuint y) {
         setUniform(location, [=] {
@@ -250,6 +251,7 @@ public:
             checkError();
         });
     }
+#endif
     
     void setUniform(GLuint location, vector<GLfloat> v,int size = 1) {
         if (size == 1) {
@@ -322,7 +324,7 @@ public:
                 checkError();
             });
         } else {
-            throw GLError(ObjectiveGLError_InvalidData);
+            OGLTHROW(GLError(ObjectiveGLError_InvalidData));
         }
     }
 
@@ -373,6 +375,7 @@ public:
         setUniform(location, x, y, z, w);
     }
 
+#ifdef ES3
     void setUniform(string name, GLuint x) {
         auto location = getUniformLocation(name);
         setUniform(location, x);
@@ -392,6 +395,7 @@ public:
         auto location = getUniformLocation(name);
         setUniform(location, x, y, z, w);
     }
+#endif
 
     void setUniformMatrix(string name, vector<GLfloat> matrix) {
         auto location = getUniformLocation(name);
