@@ -16,7 +16,7 @@
 namespace ObjectiveGL {
 using namespace std;
 
-class GLBuffer : public GLShareObject {
+class OGL_API GLBuffer : public GLShareObject {
 protected:
     GLBuffer() : bufferID(0), size(0) {
         OGL(glGenBuffers(1, &bufferID));

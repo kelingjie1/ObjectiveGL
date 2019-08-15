@@ -12,11 +12,11 @@
 #include "GLObject.h"
 
 namespace ObjectiveGL {
-class GLTexture : public GLShareObject {
+class OGL_API GLTexture : public GLShareObject {
     friend class GLContext;
 
 protected:
-    GLTexture(int backendTexture = -1) {
+    GLTexture(int backendTexture = -1, int width = 0, int height = 0) {
         if (backendTexture < 0) {
             OGL(glGenTextures(1, &textureID));
             checkError();
@@ -24,6 +24,8 @@ protected:
         else {
             textureID = backendTexture;
             isBackend = true;
+            this->width = width;
+            this->height = height;
         }
         
     }
@@ -32,8 +34,14 @@ public:
 
     GLuint textureID;
     bool isBackend = false;
-    static shared_ptr<GLTexture> create(int backendTexture = -1) {
-        return shared_ptr<GLTexture>(new GLTexture(backendTexture));
+    GLsizei width = 0;
+    GLsizei height = 0;
+    static shared_ptr<GLTexture> create() {
+        return shared_ptr<GLTexture>(new GLTexture(-1));
+    }
+
+    static shared_ptr<GLTexture> create(int backendTexture, int width, int height) {
+        return shared_ptr<GLTexture>(new GLTexture(backendTexture, width, height));
     }
 
     ~GLTexture() {
@@ -51,6 +59,8 @@ public:
         check();
         OGL(glBindTexture(GL_TEXTURE_2D, textureID));
         checkError();
+        this->width = width;
+        this->height = height;
         glTexImage2D(GL_TEXTURE_2D, 0, internalformat, width, height, 0, format,
                      GL_UNSIGNED_BYTE, pixels);
         checkError();

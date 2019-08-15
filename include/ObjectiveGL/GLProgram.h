@@ -29,7 +29,7 @@ enum GLProgramType {
     GLProgramTypeTransformFeedback,
 };
 
-class GLProgram : public GLObject {
+class OGL_API GLProgram : public GLObject {
     friend class GLContext;
 
 protected:

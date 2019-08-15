@@ -21,7 +21,7 @@
 namespace ObjectiveGL {
 using namespace std;
 
-class GLBaseVertex {
+class OGL_API GLBaseVertex {
 public:
     GLfloat x;
     GLfloat y;
@@ -29,7 +29,7 @@ public:
     GLfloat v;
 };
 
-class GLVertexArrayParams {
+class OGL_API GLVertexArrayParams {
 public:
     string name;
     int location = -1;
@@ -41,7 +41,7 @@ public:
     GLVertexArrayParams(string name, GLenum type,GLint size = 1, GLboolean normalized = false) : name(name), type(type), size(size), normalized(normalized) {}
 };
 
-class GLVertexArray : public GLObject {
+class OGL_API GLVertexArray : public GLObject {
     
     friend class GLFrameBuffer;
 protected:

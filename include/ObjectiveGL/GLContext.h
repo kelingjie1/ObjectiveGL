@@ -18,7 +18,7 @@ typedef int GLContextID;
 namespace ObjectiveGL {
 using namespace std;
 
-class GLShareGroup {
+class OGL_API GLShareGroup {
 protected:
     GLShareGroup(GLShareGroupID shareGroupID):shareGroupID(shareGroupID) {
         
@@ -35,9 +35,7 @@ public:
     }
 };
 
-class GLContext;
-
-class GLContext : public enable_shared_from_this<GLContext> {
+class OGL_API GLContext : public enable_shared_from_this<GLContext> {
 protected:
     static shared_ptr<GLContext> &currentContext() {
         static thread_local shared_ptr<GLContext> context;

@@ -14,7 +14,7 @@
 namespace ObjectiveGL {
 using namespace std;
 
-class GLCaps {
+class OGL_API GLCaps {
 #ifdef GLES3
     static GLint MAJOR_VERSION() {
         GLint value;

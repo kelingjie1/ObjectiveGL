@@ -35,7 +35,7 @@ enum ObjectiveGLError {
     ObjectiveGLError_LocationNotFound,
 };
 
-class GLError : exception {
+class OGL_API GLError : exception {
 public:
     ObjectiveGLError code;
     GLenum glcode;

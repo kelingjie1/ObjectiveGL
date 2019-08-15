@@ -45,6 +45,18 @@
 
 #endif
 
+#if defined(WIN32)
+    #if OGL_IMPLEMENTATION
+        #define OGL_API __declspec(dllexport)
+    #else
+        #define OGL_API __declspec(dllimport)
+    #endif
+#else
+    #define OGL_API __attribute__((visibility("default")))
+#endif
+
+
+
 #include <memory>
 #include <string>
 

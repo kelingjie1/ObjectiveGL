@@ -16,7 +16,7 @@
 namespace ObjectiveGL {
 using namespace std;
 
-class GLRenderBuffer : public GLShareObject {
+class OGL_API GLRenderBuffer : public GLShareObject {
     friend class GLContext;
 
 protected:

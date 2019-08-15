@@ -22,7 +22,7 @@ namespace ObjectiveGL {
 using namespace std;
     
     
-class GLDrawOption {
+class OGL_API GLDrawOption {
 public:
     GLDrawOption(){}
     bool enableBlend = true;
@@ -31,6 +31,12 @@ public:
     
     bool enableDepthTest = false;
     bool enableStencilTest = false;
+
+    bool enableScissorTest = false;
+    GLint scissorBox[4];
+
+    shared_ptr<GLDrawOption> savedOpt;
+
     function<void()> stencilOperations;
     void use() const {
         if (enableBlend) {
@@ -53,14 +59,48 @@ public:
         else {
             OGL(glDisable(GL_STENCIL_TEST));
         }
+
+        if (enableScissorTest) {
+            glEnable(GL_SCISSOR_TEST);
+            glScissor(scissorBox[0], scissorBox[1], scissorBox[2], scissorBox[3]);
+        }
+    }
+
+    void save() {
+        savedOpt = make_shared<GLDrawOption>();
+
+        GLboolean enable;
+        glGetBooleanv(GL_SCISSOR_TEST, &enable);
+        savedOpt->enableScissorTest = enable;
+
+        glGetIntegerv(GL_SCISSOR_BOX, &(savedOpt->scissorBox[0]));
+    }
+
+    void restore() {
+        if (savedOpt == nullptr) return;
+
+        if (savedOpt->enableScissorTest) {
+            glEnable(GL_SCISSOR_TEST);
+
+        } else {
+            glDisable(GL_SCISSOR_TEST);
+        }
+
+        glScissor(savedOpt->scissorBox[0], savedOpt->scissorBox[1], savedOpt->scissorBox[2], savedOpt->scissorBox[3]);
+
+        savedOpt = nullptr;
     }
 };
 
-class GLFrameBuffer : public GLShareObject {
+class OGL_API GLFrameBuffer : public GLShareObject {
     friend class GLContext;
 
 protected:
     bool isBackend;
+
+public:
+    GLuint frameBufferID;
+
     GLFrameBuffer(int backendFrameBuffer) {
         if (backendFrameBuffer<0) {
             OGL(glGenBuffers(1, &frameBufferID));
@@ -71,9 +111,6 @@ protected:
             isBackend = true;
         }
     }
-
-public:
-    GLuint frameBufferID;
 
     ~GLFrameBuffer() {
         if (!isBackend) {
@@ -128,12 +165,15 @@ public:
 #endif
     }
 
-    void draw(shared_ptr<GLProgram> program, shared_ptr<GLVertexArray> vao,const GLDrawOption &option) {
+    void draw(shared_ptr<GLProgram> program, shared_ptr<GLVertexArray> vao, GLDrawOption &option) {
         check();
         OGL(glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID));
+        check();
         program->use();
+        option.save();
         option.use();
         vao->draw(program);
+        option.restore();
     }
     
     void clearColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
