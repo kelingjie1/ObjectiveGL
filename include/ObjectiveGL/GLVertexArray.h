@@ -128,7 +128,7 @@ protected:
             OGL(glEnableVertexAttribArray(param.location));
             OGL(glVertexAttribPointer(param.location, param.size, param.type, param.normalized, stride, of));
             checkError();
-            offset += Util::sizeOfGLType(param.type) * param.size;
+            offset += GLUtil::sizeOfGLType(param.type) * param.size;
         }
         
     }

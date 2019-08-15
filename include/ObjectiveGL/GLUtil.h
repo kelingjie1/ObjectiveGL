@@ -50,7 +50,7 @@ static const string passThroughFragmentShader = string("#version 300 es\n") +
                                                     }
                                                 );
 
-class Util {
+class OGL_API GLUtil {
 public:
     static string readFile(string file) {
         char buf[1000];
