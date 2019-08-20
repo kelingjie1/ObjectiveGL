@@ -54,8 +54,8 @@ protected:
 
     GLVertexArray():eboType(GL_UNSIGNED_INT),drawCount(0) {
 #ifdef ES3
-        OGL(glGenVertexArrays(1, &vao));
-        checkError();
+        GLCHECK(glGenVertexArrays(1, &vao));
+        
 #endif
     }
 
@@ -64,11 +64,11 @@ protected:
         check();
         auto count = drawCount;
 #ifdef ES3
-        OGL(glBindVertexArray(vao));
+        GLCHECK(glBindVertexArray(vao));
 #else
         for (auto &buffer:bufferMap) {
-            OGL(glBindBuffer(buffer.first, buffer.second->bufferID));
-            checkError();
+            GLCHECK(glBindBuffer(buffer.first, buffer.second->bufferID));
+            
         }
         useParams(program);
 #endif
@@ -78,23 +78,23 @@ protected:
             if (count == 0) {
                 count = elementBuffer->count;
             }
-            OGL(glDrawElements(mode, count, eboType, nullptr));
-            checkError();
+            GLCHECK(glDrawElements(mode, count, eboType, nullptr));
+            
         } else {
             auto it = bufferMap.find(GL_ARRAY_BUFFER);
             auto vertexbuffer = it->second;
             if (count == 0) {
                 count = vertexbuffer->count;
             }
-            OGL(glDrawArrays(mode, 0, count));
-            checkError();
+            GLCHECK(glDrawArrays(mode, 0, count));
+            
         }
 #ifdef ES3
-        OGL(glBindVertexArray(0));
+        GLCHECK(glBindVertexArray(0));
 #else
         for (auto &buffer:bufferMap) {
-            OGL(glBindBuffer(buffer.first, 0));
-            checkError();
+            GLCHECK(glBindBuffer(buffer.first, 0));
+            
         }
 #endif
     }
@@ -102,9 +102,9 @@ protected:
     void useParams(shared_ptr<GLProgram> program) {
         
         GLint maxAttributes = 0;
-        OGL(glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &maxAttributes));
+        GLCHECK(glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &maxAttributes));
         for (GLint i = 0; i < maxAttributes; i++) {
-            OGL(glDisableVertexAttribArray(i));
+            GLCHECK(glDisableVertexAttribArray(i));
         }
         
         GLuint offset = 0;
@@ -115,8 +115,8 @@ protected:
             GLvoid *of = reinterpret_cast<GLvoid *>(offset);
             if (param.location < 0) {
                 if (param.name.size()) {
-                    param.location = OGL(glGetAttribLocation(program->programID, param.name.c_str()));
-                    checkError();
+                    param.location = GLCHECK(glGetAttribLocation(program->programID, param.name.c_str()));
+                    
                     if (param.location < 0) {
                         OGL_ERROR(ObjectiveGLError_LocationNotFound);
                     }
@@ -125,9 +125,9 @@ protected:
                     param.location = i;
                 }
             }
-            OGL(glEnableVertexAttribArray(param.location));
-            OGL(glVertexAttribPointer(param.location, param.size, param.type, param.normalized, stride, of));
-            checkError();
+            GLCHECK(glEnableVertexAttribArray(param.location));
+            GLCHECK(glVertexAttribPointer(param.location, param.size, param.type, param.normalized, stride, of));
+            
             offset += GLUtil::sizeOfGLType(param.type) * param.size;
         }
         
@@ -145,24 +145,24 @@ public:
     ~GLVertexArray() {
         check();
 #ifdef ES3
-        OGL(glDeleteVertexArrays(1, &vao));
-        checkError();
+        GLCHECK(glDeleteVertexArrays(1, &vao));
+        
 #endif
     }
     
     void setBuffer(GLenum type,shared_ptr<GLBuffer> buffer) {
         check();
 #ifdef ES3
-        OGL(glBindVertexArray(vao));
-        checkError();
+        GLCHECK(glBindVertexArray(vao));
+        
         
         if (type != GL_TRANSFORM_FEEDBACK_BUFFER) {
-            OGL(glBindBuffer(type, buffer->bufferID));
-            checkError();
+            GLCHECK(glBindBuffer(type, buffer->bufferID));
+            
         }
         
-        OGL(glBindVertexArray(0));
-        checkError();
+        GLCHECK(glBindVertexArray(0));
+        
 #endif
         bufferMap[type] = buffer;
     }
@@ -176,9 +176,9 @@ public:
         check();
         this->params = params;
 #ifdef ES3
-        OGL(glBindVertexArray(vao));
+        GLCHECK(glBindVertexArray(vao));
         useParams();
-        OGL(glBindVertexArray(0));
+        GLCHECK(glBindVertexArray(0));
 #endif
     }
     
@@ -192,20 +192,20 @@ public:
 #ifdef ES3
     void computeUsingTransformFeedback(shared_ptr<GLProgram> program) {
         program->use();
-        OGL(glEnable(GL_RASTERIZER_DISCARD));
-        checkError();
+        GLCHECK(glEnable(GL_RASTERIZER_DISCARD));
+        
         auto buffer = bufferMap[GL_TRANSFORM_FEEDBACK_BUFFER];
-        OGL(glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, buffer->bufferID));
-        checkError();
-        OGL(glBeginTransformFeedback(mode));
-        checkError();
+        GLCHECK(glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, buffer->bufferID));
+        
+        GLCHECK(glBeginTransformFeedback(mode));
+        
         draw();
-        OGL(glEndTransformFeedback());
-        checkError();
-        OGL(glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, 0));
-        checkError();
-        OGL(glDisable(GL_RASTERIZER_DISCARD));
-        checkError();
+        GLCHECK(glEndTransformFeedback());
+        
+        GLCHECK(glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, 0));
+        
+        GLCHECK(glDisable(GL_RASTERIZER_DISCARD));
+        
     }
 #endif
 };

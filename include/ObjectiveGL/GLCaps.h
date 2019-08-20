@@ -18,7 +18,7 @@ class OGL_API GLCaps {
 #ifdef GLES3
     static GLint MAJOR_VERSION() {
         GLint value;
-        OGL(glGetIntegerv(GL_MAJOR_VERSION, &value));
+        GLCHECK(glGetIntegerv(GL_MAJOR_VERSION, &value));
         return value;
     }
 #endif

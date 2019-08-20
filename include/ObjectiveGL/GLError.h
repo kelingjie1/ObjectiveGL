@@ -34,10 +34,13 @@ enum GLLogLevel {
     GLLogLevel_Warning,
     GLLogLevel_Error,
 };
-
+    
+#define S1(x) #x
+#define STR(x) S1(x)
 #define OGL_LOG_FORMAT1 "GLError:code %d"
 #define OGL_LOG_FORMAT2 "GLError:code %d,glcode %d"
 #define OGL_LOG_FORMAT3 "GLError:code %d,glcode %d,%s"
+
     
     
 #define GET_MACRO(_1,_2,_3,NAME,...) NAME
@@ -62,6 +65,8 @@ enum GLLogLevel {
     #define OGL_ERROR2(code,glcode) GLLog::logError(OGL_LOG_FORMAT2, code, glcode)
     #define OGL_ERROR3(code,glcode,log) GLLog::logError(OGL_LOG_FORMAT3, code, glcode, log)
 #endif
+    
+#define GLCHECK(x) OGL(x);GLError::check(STR(__FILE__) ":" STR(__LINE__) ":" STR(x))
 
     
 class OGL_API GLLog {
@@ -134,5 +139,12 @@ public:
     };
 
     virtual const char *what() const noexcept { return log.c_str(); }
+    
+    static inline void check(const char *log) {
+        auto error = OGL(glGetError());
+        if (error) {
+            OGL_ERROR(ObjectiveGLError_GLError, error, log);
+        }
+    }
 };
 }

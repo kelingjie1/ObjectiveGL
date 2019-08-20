@@ -40,24 +40,24 @@ public:
     function<void()> stencilOperations;
     void use() const {
         if (enableBlend) {
-            OGL(glEnable(GL_BLEND));
-            OGL(glBlendFunc(blendSrcFactor, blendDstFactor));
+            GLCHECK(glEnable(GL_BLEND));
+            GLCHECK(glBlendFunc(blendSrcFactor, blendDstFactor));
         }
         else {
-            OGL(glDisable(GL_BLEND));
+            GLCHECK(glDisable(GL_BLEND));
         }
         if (enableDepthTest) {
-            OGL(glEnable(GL_DEPTH_TEST));
+            GLCHECK(glEnable(GL_DEPTH_TEST));
         }
         else {
-            OGL(glDisable(GL_DEPTH_TEST));
+            GLCHECK(glDisable(GL_DEPTH_TEST));
         }
         if (enableStencilTest) {
-            OGL(glEnable(GL_STENCIL_TEST));
+            GLCHECK(glEnable(GL_STENCIL_TEST));
             stencilOperations();
         }
         else {
-            OGL(glDisable(GL_STENCIL_TEST));
+            GLCHECK(glDisable(GL_STENCIL_TEST));
         }
 
         if (enableScissorTest) {
@@ -103,7 +103,7 @@ public:
 
     GLFrameBuffer(int backendFrameBuffer) {
         if (backendFrameBuffer<0) {
-            OGL(glGenBuffers(1, &frameBufferID));
+            GLCHECK(glGenFramebuffers(1, &frameBufferID));
             isBackend = false;
         }
         else {
@@ -115,7 +115,7 @@ public:
     ~GLFrameBuffer() {
         if (!isBackend) {
             check();
-            OGL(glDeleteBuffers(1, &frameBufferID));
+            GLCHECK(glDeleteBuffers(1, &frameBufferID));
         }
         
     }
@@ -132,14 +132,14 @@ public:
     
 #ifdef ES3
     void setColorTextures(vector<shared_ptr<GLTexture> > textures) {
-        OGL(glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID));
+        GLCHECK(glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID));
         vector<GLenum> bufs;
         for (int i = 0; i < (int)textures.size(); i++) {
             bufs.push_back(GL_COLOR_ATTACHMENT0 + i);
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D,
                                    textures[i]->textureID, 0);
         }
-        OGL(glDrawBuffers((GLsizei) textures.size(), bufs.data()));
+        GLCHECK(glDrawBuffers((GLsizei) textures.size(), bufs.data()));
     }
 #endif
 
@@ -149,25 +149,25 @@ public:
         vec.push_back(texture);
         setColorTextures(vec);
 #else
-        OGL(glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID));
+        GLCHECK(glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID));
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
                                texture->textureID, 0);
 #endif
     }
 
     void setRenderBuffer(shared_ptr<GLRenderBuffer> renderBuffer) {
-        OGL(glBindBuffer(GL_FRAMEBUFFER, frameBufferID));
+        GLCHECK(glBindBuffer(GL_FRAMEBUFFER, frameBufferID));
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER,
                                   renderBuffer->renderBufferID);
         GLenum buf = GL_COLOR_ATTACHMENT0;
 #ifdef ES3
-        OGL(glDrawBuffers(1, &buf));
+        GLCHECK(glDrawBuffers(1, &buf));
 #endif
     }
 
     void draw(shared_ptr<GLProgram> program, shared_ptr<GLVertexArray> vao, GLDrawOption &option) {
         check();
-        OGL(glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID));
+        GLCHECK(glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID));
         check();
         program->use();
         option.save();
@@ -179,11 +179,11 @@ public:
     void clearColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
     {
         check();
-        OGL(glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID));
-        checkError();
-        OGL(glClearColor(red, green, blue, alpha));
-        OGL(glClear(GL_COLOR_BUFFER_BIT));
-        checkError();
+        GLCHECK(glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID));
+        
+        GLCHECK(glClearColor(red, green, blue, alpha));
+        GLCHECK(glClear(GL_COLOR_BUFFER_BIT));
+        
     }
     
     void clearStencil(GLint s)
@@ -191,19 +191,19 @@ public:
         check();
 
         GLint old;
-        OGL(glGetIntegerv(GL_FRAMEBUFFER_BINDING, &old));
+        GLCHECK(glGetIntegerv(GL_FRAMEBUFFER_BINDING, &old));
 
-        OGL(glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID));
-        checkError();
+        GLCHECK(glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID));
+        
 
-        OGL(glClearStencil(s));
-        checkError();
+        GLCHECK(glClearStencil(s));
+        
 
-        OGL(glClear(GL_STENCIL_BUFFER_BIT));
-        checkError();
+        GLCHECK(glClear(GL_STENCIL_BUFFER_BIT));
+        
 
-        OGL(glBindFramebuffer(GL_FRAMEBUFFER, old));
-        checkError();
+        GLCHECK(glBindFramebuffer(GL_FRAMEBUFFER, old));
+        
     }
 
 };

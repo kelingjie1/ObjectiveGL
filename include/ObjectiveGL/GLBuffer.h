@@ -19,8 +19,8 @@ using namespace std;
 class OGL_API GLBuffer : public GLShareObject {
 protected:
     GLBuffer() : bufferID(0), size(0) {
-        OGL(glGenBuffers(1, &bufferID));
-        checkError();
+        GLCHECK(glGenBuffers(1, &bufferID));
+        
     }
 
 
@@ -33,7 +33,7 @@ public:
     
     ~GLBuffer() {
         check();
-        OGL(glDeleteBuffers(1, &bufferID));
+        GLCHECK(glDeleteBuffers(1, &bufferID));
     }
     
     static shared_ptr<GLBuffer> create() {
@@ -45,23 +45,23 @@ public:
         this->count = count;
         this->elementSize = elementSize;
         size = elementSize*count;
-        OGL(glBindBuffer(GL_ARRAY_BUFFER, bufferID));
-        checkError();
-        OGL(glBufferData(GL_ARRAY_BUFFER, size, data, usage));
-        checkError();
-        OGL(glBindBuffer(GL_ARRAY_BUFFER, 0));
-        checkError();
+        GLCHECK(glBindBuffer(GL_ARRAY_BUFFER, bufferID));
+        
+        GLCHECK(glBufferData(GL_ARRAY_BUFFER, size, data, usage));
+        
+        GLCHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
+        
     }
     
     void replaceData(GLintptr offset, GLsizei count, const GLvoid *data) {
         check();
         size = elementSize*count;
-        OGL(glBindBuffer(GL_ARRAY_BUFFER, bufferID));
-        checkError();
-        OGL(glBufferSubData(GL_ARRAY_BUFFER, offset, size, data));
-        checkError();
-        OGL(glBindBuffer(GL_ARRAY_BUFFER, 0));
-        checkError();
+        GLCHECK(glBindBuffer(GL_ARRAY_BUFFER, bufferID));
+        
+        GLCHECK(glBufferSubData(GL_ARRAY_BUFFER, offset, size, data));
+        
+        GLCHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
+        
     }
 #ifdef ES3
     void accessData(function<void(void *data)> func, GLuint offset = 0, GLuint length = 0,
@@ -78,33 +78,33 @@ public:
         if (length == 0) {
             length = size - offset;
         }
-        OGL(glBindBuffer(GL_ARRAY_BUFFER, bufferID));
-        checkError();
-        void *data = OGL(glMapBufferRange(GL_ARRAY_BUFFER, offset, length, access));
-        checkError();
-        OGL(glBindBuffer(GL_ARRAY_BUFFER, 0));
-        checkError();
+        GLCHECK(glBindBuffer(GL_ARRAY_BUFFER, bufferID));
+        
+        void *data = GLCHECK(glMapBufferRange(GL_ARRAY_BUFFER, offset, length, access));
+        
+        GLCHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
+        
         return data;
     }
 
     void unlock() {
         check();
-        OGL(glBindBuffer(GL_ARRAY_BUFFER, bufferID));
-        checkError();
-        OGL(glUnmapBuffer(GL_ARRAY_BUFFER));
-        checkError();
-        OGL(glBindBuffer(GL_ARRAY_BUFFER, 0));
-        checkError();
+        GLCHECK(glBindBuffer(GL_ARRAY_BUFFER, bufferID));
+        
+        GLCHECK(glUnmapBuffer(GL_ARRAY_BUFFER));
+        
+        GLCHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
+        
         
     }
     
     void copyFromBuffer(shared_ptr<GLBuffer> buffer,GLuint readOffset=0,GLuint writeOffset=0,GLsizei size=0) {
-        OGL(glBindBuffer(GL_COPY_READ_BUFFER, buffer->bufferID));
-        OGL(glBindBuffer(GL_COPY_WRITE_BUFFER, bufferID));
+        GLCHECK(glBindBuffer(GL_COPY_READ_BUFFER, buffer->bufferID));
+        GLCHECK(glBindBuffer(GL_COPY_WRITE_BUFFER, bufferID));
         if (size == 0) {
             size = min(buffer->size,this->size);
         }
-        OGL(glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, readOffset, writeOffset, size));
+        GLCHECK(glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, readOffset, writeOffset, size));
     }
 #endif
 };

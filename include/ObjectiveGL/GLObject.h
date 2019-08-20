@@ -34,13 +34,6 @@ public:
 #endif
     }
 
-    static void checkError() {
-        auto error = OGL(glGetError());
-        if (error) {
-            OGL_ERROR(ObjectiveGLError_GLError, error);
-        }
-    }
-
 };
 
 class OGL_API GLShareObject : public GLObject {

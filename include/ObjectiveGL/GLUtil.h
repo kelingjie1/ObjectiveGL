@@ -30,7 +30,7 @@ static const string passThroughVertexShader = string("#version 300 es\n") +
                                                   out
                                                   vec2 uv;
                                                   void main() {
-                                                      OGL(gl_Position = vec4(position, 0., 1.));
+                                                      GLCHECK(gl_Position = vec4(position, 0., 1.));
                                                       uv = coord;
                                                   }
                                               );
