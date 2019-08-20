@@ -83,7 +83,7 @@ protected:
         glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
         if (!success) {
             glGetShaderInfoLog(shader, 512, nullptr, infoLog);
-            OGLTHROW(GLError(ObjectiveGLError_ShaderCompileFailed, infoLog));
+            OGL_ERROR(ObjectiveGLError_ShaderCompileFailed, glGetError(), infoLog);
         }
         checkError();
         return shader;
@@ -96,7 +96,7 @@ protected:
         glGetProgramiv(programID, GL_LINK_STATUS, &linked);
         if (!linked) {
             glGetProgramInfoLog(programID, 512, nullptr, infoLog);
-            OGLTHROW(GLError(ObjectiveGLError_ProgramLinkFailed, infoLog));
+            OGL_ERROR(ObjectiveGLError_ProgramLinkFailed, glGetError(), infoLog);
         }
     }
 
@@ -324,7 +324,7 @@ public:
                 checkError();
             });
         } else {
-            OGLTHROW(GLError(ObjectiveGLError_InvalidData));
+            OGL_ERROR(ObjectiveGLError_InvalidData);
         }
     }
 

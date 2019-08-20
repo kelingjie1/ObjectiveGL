@@ -29,13 +29,15 @@ protected:
 public:
 
     void check() {
+#if OGL_CONTEXT_CHECK
         context->check(false);
+#endif
     }
 
     static void checkError() {
         auto error = OGL(glGetError());
         if (error) {
-            OGLTHROW(GLError(ObjectiveGLError_GLError, error));
+            OGL_ERROR(ObjectiveGLError_GLError, error);
         }
     }
 
@@ -44,7 +46,9 @@ public:
 class OGL_API GLShareObject : public GLObject {
 public:
     void check() {
+#if OGL_CONTEXT_CHECK
         context->check(true);
+#endif
     }
 };
 }

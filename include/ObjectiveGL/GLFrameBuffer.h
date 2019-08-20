@@ -114,7 +114,7 @@ public:
 
     ~GLFrameBuffer() {
         if (!isBackend) {
-            context->check();
+            check();
             OGL(glDeleteBuffers(1, &frameBufferID));
         }
         
@@ -189,10 +189,20 @@ public:
     void clearStencil(GLint s)
     {
         check();
+
+        GLint old;
+        OGL(glGetIntegerv(GL_FRAMEBUFFER_BINDING, &old));
+
         OGL(glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID));
         checkError();
+
         OGL(glClearStencil(s));
+        checkError();
+
         OGL(glClear(GL_STENCIL_BUFFER_BIT));
+        checkError();
+
+        OGL(glBindFramebuffer(GL_FRAMEBUFFER, old));
         checkError();
     }
 

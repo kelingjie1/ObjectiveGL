@@ -118,7 +118,7 @@ protected:
                     param.location = OGL(glGetAttribLocation(program->programID, param.name.c_str()));
                     checkError();
                     if (param.location < 0) {
-                        OGLTHROW(GLError(ObjectiveGLError_LocationNotFound));
+                        OGL_ERROR(ObjectiveGLError_LocationNotFound);
                     }
                 }
                 else {
