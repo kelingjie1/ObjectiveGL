@@ -35,8 +35,6 @@ public:
     bool enableScissorTest = false;
     GLint scissorBox[4];
 
-    shared_ptr<GLDrawOption> savedOpt;
-
     function<void()> stencilOperations;
     void use() const {
         if (enableBlend) {
@@ -65,30 +63,36 @@ public:
             glScissor(scissorBox[0], scissorBox[1], scissorBox[2], scissorBox[3]);
         }
     }
+};
 
+class GLDrawOptionSaver : public GLDrawOption {
+protected:
     void save() {
-        savedOpt = make_shared<GLDrawOption>();
 
         GLboolean enable;
         glGetBooleanv(GL_SCISSOR_TEST, &enable);
-        savedOpt->enableScissorTest = enable;
+        enableScissorTest = enable;
 
-        glGetIntegerv(GL_SCISSOR_BOX, &(savedOpt->scissorBox[0]));
+        glGetIntegerv(GL_SCISSOR_BOX, scissorBox);
     }
 
     void restore() {
-        if (savedOpt == nullptr) return;
 
-        if (savedOpt->enableScissorTest) {
+        if (enableScissorTest) {
             glEnable(GL_SCISSOR_TEST);
 
         } else {
             glDisable(GL_SCISSOR_TEST);
         }
 
-        glScissor(savedOpt->scissorBox[0], savedOpt->scissorBox[1], savedOpt->scissorBox[2], savedOpt->scissorBox[3]);
-
-        savedOpt = nullptr;
+        glScissor(scissorBox[0], scissorBox[1], scissorBox[2], scissorBox[3]);
+    }
+public:
+    GLDrawOptionSaver() {
+        save();
+    }
+    ~GLDrawOptionSaver() {
+        restore();
     }
 };
 
@@ -165,15 +169,14 @@ public:
 #endif
     }
 
-    void draw(shared_ptr<GLProgram> program, shared_ptr<GLVertexArray> vao, GLDrawOption &option) {
+    void draw(shared_ptr<GLProgram> program, shared_ptr<GLVertexArray> vao, const GLDrawOption &option) {
         check();
         GLCHECK(glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID));
         check();
         program->use();
-        option.save();
+        GLDrawOptionSaver saver;
         option.use();
         vao->draw(program);
-        option.restore();
     }
     
     void clearColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
