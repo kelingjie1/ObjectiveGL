@@ -27,6 +27,8 @@ enum ObjectiveGLError {
     ObjectiveGLError_ProgramLinkFailed,
     ObjectiveGLError_InvalidData,
     ObjectiveGLError_LocationNotFound,
+    ObjectiveGLError_StateAlreadySaved,
+    ObjectiveGLError_StateAlreadyRestored,
 };
     
 enum GLLogLevel {

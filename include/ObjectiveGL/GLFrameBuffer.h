@@ -65,10 +65,46 @@ public:
     }
 };
 
-class GLDrawOptionSaver : public GLDrawOption {
+class GLSaver {
 protected:
-    void save() {
+    bool saved = false;
+    bool restored = false;
+    virtual void doSave() {
+        
+    }
+    virtual void doRestore() {
+        
+    }
+public:
+    virtual void save() {
+        if (saved) {
+            OGL_ERROR(ObjectiveGLError_StateAlreadyRestored);
+        }
+        doSave();
+    }
+    
+    virtual void restore() {
+        if (restored) {
+            OGL_ERROR(ObjectiveGLError_StateAlreadyRestored);
+        }
+        doRestore();
+    }
+    
+    GLSaver(bool saveNow = true) {
+        if (saveNow) {
+            save();
+        }
+    }
+    virtual ~GLSaver() {
+        if (!restored) {
+            restore();
+        }
+    }
+};
 
+class GLDrawOptionSaver : public GLDrawOption,GLSaver {
+public:
+    virtual void doSave() {
         GLboolean enable;
         glGetBooleanv(GL_SCISSOR_TEST, &enable);
         enableScissorTest = enable;
@@ -76,8 +112,7 @@ protected:
         glGetIntegerv(GL_SCISSOR_BOX, scissorBox);
     }
 
-    void restore() {
-
+    virtual void doRestore() {
         if (enableScissorTest) {
             glEnable(GL_SCISSOR_TEST);
 
@@ -87,12 +122,21 @@ protected:
 
         glScissor(scissorBox[0], scissorBox[1], scissorBox[2], scissorBox[3]);
     }
+
+    GLDrawOptionSaver(bool saveNow = true) : GLSaver(saveNow) {}
+    virtual ~GLDrawOptionSaver() {}
+};
+    
+class GLFrameBufferSaver : public GLSaver {
+protected:
+    GLint oldFrameBuffer;
 public:
-    GLDrawOptionSaver() {
-        save();
+    virtual void doSave() {
+        GLCHECK(glGetIntegerv(GL_FRAMEBUFFER_BINDING, &oldFrameBuffer));
     }
-    ~GLDrawOptionSaver() {
-        restore();
+    
+    virtual void doRestore() {
+        GLCHECK(glBindFramebuffer(GL_FRAMEBUFFER, oldFrameBuffer));
     }
 };
 
@@ -154,8 +198,8 @@ public:
         setColorTextures(vec);
 #else
         GLCHECK(glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID));
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
-                               texture->textureID, 0);
+        GLCHECK(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
+                                       texture->textureID, 0));
 #endif
     }
 
@@ -179,34 +223,31 @@ public:
         vao->draw(program);
     }
     
-    void clearColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
+    void clearColor(GLfloat red = 0, GLfloat green = 0, GLfloat blue = 0, GLfloat alpha = 1)
     {
         check();
+        GLFrameBufferSaver saver;
         GLCHECK(glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID));
-        
         GLCHECK(glClearColor(red, green, blue, alpha));
         GLCHECK(glClear(GL_COLOR_BUFFER_BIT));
-        
     }
     
-    void clearStencil(GLint s)
+    void clearDepth(GLclampf depth = 1)
     {
         check();
-
-        GLint old;
-        GLCHECK(glGetIntegerv(GL_FRAMEBUFFER_BINDING, &old));
-
+        GLFrameBufferSaver saver;
         GLCHECK(glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID));
-        
-
+        GLCHECK(glClearDepthf(depth));
+        GLCHECK(glClear(GL_DEPTH_BUFFER_BIT));
+    }
+    
+    void clearStencil(GLint s = 0)
+    {
+        check();
+        GLFrameBufferSaver saver;
+        GLCHECK(glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID));
         GLCHECK(glClearStencil(s));
-        
-
         GLCHECK(glClear(GL_STENCIL_BUFFER_BIT));
-        
-
-        GLCHECK(glBindFramebuffer(GL_FRAMEBUFFER, old));
-        
     }
 
 };
