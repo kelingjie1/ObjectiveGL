@@ -25,7 +25,7 @@ using namespace std;
 class OGL_API GLDrawOption {
 public:
     GLDrawOption(){}
-    bool enableBlend = true;
+    bool enableBlend = false;
     GLenum blendSrcFactor = GL_SRC_ALPHA;
     GLenum blendDstFactor = GL_ONE_MINUS_SRC_ALPHA;
     
@@ -145,10 +145,7 @@ class OGL_API GLFrameBuffer : public GLShareObject {
 
 protected:
     bool isBackend;
-
-public:
-    GLuint frameBufferID;
-
+    
     GLFrameBuffer(int backendFrameBuffer) {
         if (backendFrameBuffer<0) {
             GLCHECK(glGenFramebuffers(1, &frameBufferID));
@@ -159,6 +156,9 @@ public:
             isBackend = true;
         }
     }
+
+public:
+    GLuint frameBufferID;
 
     ~GLFrameBuffer() {
         if (!isBackend) {
@@ -204,11 +204,11 @@ public:
     }
 
     void setRenderBuffer(shared_ptr<GLRenderBuffer> renderBuffer) {
-        GLCHECK(glBindBuffer(GL_FRAMEBUFFER, frameBufferID));
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER,
-                                  renderBuffer->renderBufferID);
-        GLenum buf = GL_COLOR_ATTACHMENT0;
+        GLFrameBufferSaver saver;
+        GLCHECK(glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID));
+        GLCHECK(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, renderBuffer->renderBufferID));
 #ifdef ES3
+        GLenum buf = GL_COLOR_ATTACHMENT0;
         GLCHECK(glDrawBuffers(1, &buf));
 #endif
     }

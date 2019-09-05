@@ -70,8 +70,8 @@ protected:
             GLCHECK(glBindBuffer(buffer.first, buffer.second->bufferID));
             
         }
-        useParams(program);
 #endif
+        useParams(program);
         auto it = bufferMap.find(GL_ELEMENT_ARRAY_BUFFER);
         if (it != bufferMap.end()) {
             auto elementBuffer = it->second;
@@ -177,7 +177,6 @@ public:
         this->params = params;
 #ifdef ES3
         GLCHECK(glBindVertexArray(vao));
-        useParams();
         GLCHECK(glBindVertexArray(0));
 #endif
     }
@@ -199,7 +198,7 @@ public:
         
         GLCHECK(glBeginTransformFeedback(mode));
         
-        draw();
+        draw(program);
         GLCHECK(glEndTransformFeedback());
         
         GLCHECK(glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, 0));

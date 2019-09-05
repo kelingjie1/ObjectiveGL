@@ -7,8 +7,8 @@
 //
 
 #include <OpenGLES/EAGL.h>
-#include "../../GLContext.h"
-#include "../../GLTexture.h"
+#include "../GLContext.h"
+#include "../GLTexture.h"
 #include <UIKit/UIKit.h>
 #include <map>
 
@@ -51,9 +51,7 @@ public:
         contexts.erase(contextID);
     }
     
-    static shared_ptr<GLTexture> createTextureFromFile(string file) {
-        NSString *path = [NSString stringWithUTF8String:file.c_str()];
-        UIImage *image = [UIImage imageWithContentsOfFile:path];
+    static shared_ptr<GLTexture> createTextureFromUIImage(UIImage *image) {
         GLsizei width = (GLsizei)CGImageGetWidth(image.CGImage);
         GLsizei height = (GLsizei)CGImageGetHeight(image.CGImage);
         CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();

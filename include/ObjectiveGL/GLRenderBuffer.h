@@ -20,8 +20,8 @@ class OGL_API GLRenderBuffer : public GLShareObject {
     friend class GLContext;
 
 protected:
-    GLRenderBuffer(GLuint backendRenderBuffer=0) {
-        if (backendRenderBuffer) {
+    GLRenderBuffer(GLuint backendRenderBuffer) {
+        if (backendRenderBuffer>=0) {
             renderBufferID = backendRenderBuffer;
         }
         else {
@@ -32,6 +32,14 @@ protected:
 
 public:
     GLuint renderBufferID;
+    
+    static shared_ptr<GLRenderBuffer> create(int backendRenderBuffer = -1) {
+        return shared_ptr<GLRenderBuffer>(new GLRenderBuffer(backendRenderBuffer));
+    }
+    
+    void bind() {
+        GLCHECK(glBindRenderbuffer(GL_RENDERBUFFER, renderBufferID));
+    }
 
     ~GLRenderBuffer() {
         check();

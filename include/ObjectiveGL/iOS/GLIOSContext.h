@@ -7,9 +7,9 @@
 //
 #pragma once
 
-#include "../../GLPlatform.h"
-#include "../../GLError.h"
-#include "../../GLContext.h"
+#include "../GLPlatform.h"
+#include "../GLError.h"
+#include "../GLContext.h"
 #include "GLIOSUtil.h"
 #include <iostream>
 
@@ -64,7 +64,7 @@ namespace ObjectiveGL {
             }
             
             if (failed) {
-                throw GLError(ObjectiveGLError_ContextCheckFailed);
+                OGL_ERROR(ObjectiveGLError_ContextCheckFailed);
             }
         }
     };

@@ -52,7 +52,7 @@ protected:
     }
 
 
-    void setUniformTGLCHECK() {
+    void setUniformToGL() {
         for (auto &uniform:uniformFunc) {
             uniform.second();
         }
@@ -161,7 +161,7 @@ public:
         check();
         GLCHECK(glUseProgram(programID));
         
-        setUniformTGLCHECK();
+        setUniformToGL();
     }
 
     void setUniform(GLuint location, GLfloat x) {
