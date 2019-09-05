@@ -30,7 +30,7 @@ static const string passThroughVertexShader = string("#version 300 es\n") +
                                                   out
                                                   vec2 uv;
                                                   void main() {
-                                                      OGL(gl_Position = vec4(position, 0., 1.));
+                                                      GLCHECK(gl_Position = vec4(position, 0., 1.));
                                                       uv = coord;
                                                   }
                                               );
@@ -50,7 +50,7 @@ static const string passThroughFragmentShader = string("#version 300 es\n") +
                                                     }
                                                 );
 
-class Util {
+class OGL_API GLUtil {
 public:
     static string readFile(string file) {
         char buf[1000];
@@ -84,7 +84,7 @@ public:
             case GL_FIXED:
                 return sizeof(GLfixed);
         }
-        throw GLError(ObjectiveGLError_InvalidType);
+        OGL_ERROR(ObjectiveGLError_InvalidType);
         return 0;
     }
 };

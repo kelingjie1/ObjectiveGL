@@ -14,7 +14,7 @@
 namespace ObjectiveGL {
 using namespace std;
 
-class GLObject {
+class OGL_API GLObject {
 public:
     shared_ptr<GLContext> context;
 protected:
@@ -29,22 +29,19 @@ protected:
 public:
 
     void check() {
+#if OGL_CONTEXT_CHECK
         context->check(false);
-    }
-
-    void checkError() {
-        auto error = OGL(glGetError());
-        if (error) {
-            throw GLError(ObjectiveGLError_GLError, error);
-        }
+#endif
     }
 
 };
 
-class GLShareObject : public GLObject {
+class OGL_API GLShareObject : public GLObject {
 public:
     void check() {
+#if OGL_CONTEXT_CHECK
         context->check(true);
+#endif
     }
 };
 }

@@ -10,6 +10,7 @@
 #include "GLPlatform.h"
 #include "GLError.h"
 #include <iostream>
+#include <cstdlib>
 
 typedef int GLShareGroupID;
 typedef int GLContextID;
@@ -17,7 +18,7 @@ typedef int GLContextID;
 namespace ObjectiveGL {
 using namespace std;
 
-class GLShareGroup {
+class OGL_API GLShareGroup {
 protected:
     GLShareGroup(GLShareGroupID shareGroupID):shareGroupID(shareGroupID) {
         
@@ -34,12 +35,14 @@ public:
     }
 };
 
-class GLContext;
-
-class GLContext : public enable_shared_from_this<GLContext> {
+class OGL_API GLContext : public enable_shared_from_this<GLContext> {
 protected:
     static shared_ptr<GLContext> &currentContext() {
+#if OGL_CONTEXT_CHECK
         static thread_local shared_ptr<GLContext> context;
+#else
+        static shared_ptr<GLContext> context;
+#endif
         return context;
     }
 
@@ -69,7 +72,7 @@ public:
         auto s = shared_from_this();
         currentContext() = s;
     }
-
+#if OGL_CONTEXT_CHECK
     virtual void check(bool share = false) {
         bool failed = false;
         if (share && share && sharegroup && GLContext::current()->sharegroup == sharegroup) {
@@ -79,8 +82,9 @@ public:
         }
         
         if (failed) {
-            throw GLError(ObjectiveGLError_ContextCheckFailed);
+            OGL_ERROR(ObjectiveGLError_ContextCheckFailed);
         }
     }
+#endif
 };
 }
