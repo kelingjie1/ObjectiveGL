@@ -36,12 +36,22 @@ public:
     bool isBackend = false;
     GLsizei width = 0;
     GLsizei height = 0;
-    static shared_ptr<GLTexture> create() {
-        return shared_ptr<GLTexture>(new GLTexture(-1));
+    static shared_ptr<GLTexture> create(function<void(GLTexture *texture)> deleter = nullptr) {
+        if (deleter) {
+            return shared_ptr<GLTexture>(new GLTexture(-1),deleter);
+        }
+        else {
+            return shared_ptr<GLTexture>(new GLTexture(-1));
+        }
     }
 
-    static shared_ptr<GLTexture> create(int backendTexture, int width, int height) {
-        return shared_ptr<GLTexture>(new GLTexture(backendTexture, width, height));
+    static shared_ptr<GLTexture> create(int backendTexture, int width, int height, function<void(GLTexture *texture)> deleter = nullptr) {
+        if (deleter) {
+            return shared_ptr<GLTexture>(new GLTexture(backendTexture, width, height),deleter);
+        }
+        else {
+            return shared_ptr<GLTexture>(new GLTexture(backendTexture, width, height));
+        }
     }
 
     ~GLTexture() {

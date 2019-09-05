@@ -12,6 +12,7 @@
 #include <string>
 #include "GLError.h"
 #include "GLObject.h"
+#include "GLTexture.h"
 
 namespace ObjectiveGL {
 using namespace std;
@@ -36,8 +37,13 @@ public:
         GLCHECK(glDeleteBuffers(1, &bufferID));
     }
     
-    static shared_ptr<GLBuffer> create() {
-        return shared_ptr<GLBuffer>(new GLBuffer());
+    static shared_ptr<GLBuffer> create(function<void(GLBuffer *buffer)> deleter = nullptr) {
+        if (deleter) {
+            return shared_ptr<GLBuffer>(new GLBuffer(),deleter);
+        } else {
+            return shared_ptr<GLBuffer>(new GLBuffer());
+        }
+        
     }
     
     void alloc(GLsizei elementSize, GLsizei count, const void *data = nullptr, GLenum usage = GL_STREAM_DRAW) {
@@ -96,6 +102,14 @@ public:
         GLCHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
         
         
+    }
+    
+    void bind(GLenum target) {
+        GLCHECK(glBindBuffer(target, bufferID));
+    }
+    
+    void unbind(GLenum target) {
+        GLCHECK(glBindBuffer(target, 0));
     }
     
     void copyFromBuffer(shared_ptr<GLBuffer> buffer,GLuint readOffset=0,GLuint writeOffset=0,GLsizei size=0) {
