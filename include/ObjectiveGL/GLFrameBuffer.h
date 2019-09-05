@@ -233,6 +233,10 @@ public:
         vao->draw(program);
     }
     
+    void bind() {
+        GLCHECK(glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID));
+    }
+    
     void clearColor(GLfloat red = 0, GLfloat green = 0, GLfloat blue = 0, GLfloat alpha = 1)
     {
         check();
