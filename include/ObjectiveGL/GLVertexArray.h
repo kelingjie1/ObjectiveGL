@@ -65,12 +65,11 @@ protected:
         auto count = drawCount;
 #ifdef ES3
         GLCHECK(glBindVertexArray(vao));
-#else
+#endif
         for (auto &buffer:bufferMap) {
             GLCHECK(glBindBuffer(buffer.first, buffer.second->bufferID));
             
         }
-#endif
         useParams(program);
         auto it = bufferMap.find(GL_ELEMENT_ARRAY_BUFFER);
         if (it != bufferMap.end()) {
@@ -158,18 +157,6 @@ public:
     
     void setBuffer(GLenum type,shared_ptr<GLBuffer> buffer) {
         check();
-#ifdef ES3
-        GLCHECK(glBindVertexArray(vao));
-        
-        
-        if (type != GL_TRANSFORM_FEEDBACK_BUFFER) {
-            GLCHECK(glBindBuffer(type, buffer->bufferID));
-            
-        }
-        
-        GLCHECK(glBindVertexArray(0));
-        
-#endif
         bufferMap[type] = buffer;
     }
     

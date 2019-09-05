@@ -159,8 +159,8 @@ protected:
     }
 
 public:
+    vector<shared_ptr<GLTexture>> colorTextures;
     GLuint frameBufferID;
-
     ~GLFrameBuffer() {
         if (!isBackend) {
             check();
@@ -186,6 +186,7 @@ public:
     
 #ifdef ES3
     void setColorTextures(vector<shared_ptr<GLTexture> > textures) {
+        colorTextures = textures;
         GLCHECK(glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID));
         vector<GLenum> bufs;
         for (int i = 0; i < (int)textures.size(); i++) {
@@ -203,6 +204,8 @@ public:
         vec.push_back(texture);
         setColorTextures(vec);
 #else
+        textures.clear();
+        textures.push_back(texture);
         GLCHECK(glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID));
         GLCHECK(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
                                        texture->textureID, 0));
@@ -210,6 +213,7 @@ public:
     }
 
     void setRenderBuffer(shared_ptr<GLRenderBuffer> renderBuffer) {
+        colorTextures.clear();
         GLFrameBufferSaver saver;
         GLCHECK(glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID));
         GLCHECK(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, renderBuffer->renderBufferID));
@@ -254,6 +258,30 @@ public:
         GLCHECK(glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID));
         GLCHECK(glClearStencil(s));
         GLCHECK(glClear(GL_STENCIL_BUFFER_BIT));
+    }
+    
+    shared_ptr<GLTexture> getTexture() {
+        if (colorTextures.size()>0) {
+            return colorTextures[0];
+        }
+        else {
+            GLFrameBufferSaver saver;
+            GLCHECK(glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID));
+            GLint viewport[4];
+            GLCHECK(glGetIntegerv(GL_VIEWPORT, viewport));
+            auto pbo = GLBuffer::create();
+            pbo->alloc(sizeof(char)*4, viewport[2]*viewport[3]);
+            pbo->bind(GL_PIXEL_PACK_BUFFER);
+            GLCHECK(glReadPixels(viewport[0], viewport[1], viewport[2], viewport[3], GL_RGBA, GL_UNSIGNED_BYTE, 0));
+            pbo->unbind(GL_PIXEL_PACK_BUFFER);
+            
+            
+            pbo->bind(GL_PIXEL_UNPACK_BUFFER);
+            auto texture = GLTexture::create();
+            texture->setImageData(0, viewport[2], viewport[3]);
+            pbo->unbind(GL_PIXEL_UNPACK_BUFFER);
+            return texture;
+        }
     }
 
 };

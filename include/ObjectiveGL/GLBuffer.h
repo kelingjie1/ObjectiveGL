@@ -12,6 +12,7 @@
 #include <string>
 #include "GLError.h"
 #include "GLObject.h"
+#include "GLTexture.h"
 
 namespace ObjectiveGL {
 using namespace std;
@@ -101,6 +102,14 @@ public:
         GLCHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
         
         
+    }
+    
+    void bind(GLenum target) {
+        GLCHECK(glBindBuffer(target, bufferID));
+    }
+    
+    void unbind(GLenum target) {
+        GLCHECK(glBindBuffer(target, 0));
     }
     
     void copyFromBuffer(shared_ptr<GLBuffer> buffer,GLuint readOffset=0,GLuint writeOffset=0,GLsizei size=0) {
