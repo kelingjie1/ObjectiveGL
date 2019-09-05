@@ -36,8 +36,13 @@ public:
         GLCHECK(glDeleteBuffers(1, &bufferID));
     }
     
-    static shared_ptr<GLBuffer> create() {
-        return shared_ptr<GLBuffer>(new GLBuffer());
+    static shared_ptr<GLBuffer> create(function<void(GLBuffer *buffer)> deleter = nullptr) {
+        if (deleter) {
+            return shared_ptr<GLBuffer>(new GLBuffer(),deleter);
+        } else {
+            return shared_ptr<GLBuffer>(new GLBuffer());
+        }
+        
     }
     
     void alloc(GLsizei elementSize, GLsizei count, const void *data = nullptr, GLenum usage = GL_STREAM_DRAW) {

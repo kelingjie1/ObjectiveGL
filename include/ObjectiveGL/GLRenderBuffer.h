@@ -33,8 +33,14 @@ protected:
 public:
     GLuint renderBufferID;
     
-    static shared_ptr<GLRenderBuffer> create(int backendRenderBuffer = -1) {
-        return shared_ptr<GLRenderBuffer>(new GLRenderBuffer(backendRenderBuffer));
+    static shared_ptr<GLRenderBuffer> create(int backendRenderBuffer = -1, function<void(GLRenderBuffer *renderbuffer)> deleter = nullptr) {
+        if (deleter) {
+            return shared_ptr<GLRenderBuffer>(new GLRenderBuffer(backendRenderBuffer),deleter);
+        }
+        else {
+            return shared_ptr<GLRenderBuffer>(new GLRenderBuffer(backendRenderBuffer));
+        }
+        
     }
     
     void bind() {

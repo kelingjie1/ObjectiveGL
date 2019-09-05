@@ -140,6 +140,7 @@ public:
     }
 };
 
+    
 class OGL_API GLFrameBuffer : public GLShareObject {
     friend class GLContext;
 
@@ -168,8 +169,13 @@ public:
         
     }
     
-    static shared_ptr<GLFrameBuffer> create(int backendFrameBuffer = -1) {
-        return shared_ptr<GLFrameBuffer>(new GLFrameBuffer(backendFrameBuffer));
+    static shared_ptr<GLFrameBuffer> create(int backendFrameBuffer = -1, function<void(GLFrameBuffer *framebuffer)> deleter = nullptr) {
+        if (deleter) {
+            return shared_ptr<GLFrameBuffer>(new GLFrameBuffer(backendFrameBuffer),deleter);
+        }
+        else {
+            return shared_ptr<GLFrameBuffer>(new GLFrameBuffer(backendFrameBuffer));
+        }
     }
     
     static shared_ptr<GLFrameBuffer> createWithCurrent() {

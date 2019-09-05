@@ -138,8 +138,14 @@ public:
     GLuint vao;
 #endif
     
-    static shared_ptr<GLVertexArray> create() {
-        return shared_ptr<GLVertexArray>(new GLVertexArray());
+    static shared_ptr<GLVertexArray> create(function<void(GLVertexArray *vao)> deleter = nullptr) {
+        if (deleter) {
+            return shared_ptr<GLVertexArray>(new GLVertexArray(),deleter);
+        }
+        else {
+            return shared_ptr<GLVertexArray>(new GLVertexArray());
+        }
+        
     }
 
     ~GLVertexArray() {

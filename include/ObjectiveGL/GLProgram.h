@@ -107,8 +107,13 @@ public:
     GLuint vertexShaderID;
     GLuint fragmentShaderID;
     
-    static shared_ptr<GLProgram> create() {
-        return shared_ptr<GLProgram>(new GLProgram());
+    static shared_ptr<GLProgram> create(function<void(GLProgram *program)> deleter = nullptr) {
+        if (deleter) {
+            return shared_ptr<GLProgram>(new GLProgram(),deleter);
+        }
+        else {
+            return shared_ptr<GLProgram>(new GLProgram());
+        }
     }
 
     ~GLProgram() {
