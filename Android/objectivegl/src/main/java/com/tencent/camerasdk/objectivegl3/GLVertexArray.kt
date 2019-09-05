@@ -1,4 +1,4 @@
-package com.tencent.camerasdk.objectivegl
+package com.tencent.camerasdk.objectivegl3
 
 import android.opengl.GLES30
 

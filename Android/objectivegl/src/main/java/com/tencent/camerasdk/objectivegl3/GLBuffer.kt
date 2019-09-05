@@ -1,6 +1,7 @@
-package com.tencent.camerasdk.objectivegl
+package com.tencent.camerasdk.objectivegl3
 
 import android.opengl.GLES30
+import com.tencent.camerasdk.objectivegl2.GLArrayBuffer
 import java.nio.Buffer
 
 class GLBuffer: GLObject() {
@@ -78,7 +79,7 @@ class GLBuffer: GLObject() {
         unlock()
     }
 
-    fun offer(buffer: GLBuffer, readOffset: Int = 0, writeOffset: Int = 0, size: Int = 0) {
+    fun offer(buffer: GLArrayBuffer, readOffset: Int = 0, writeOffset: Int = 0, size: Int = 0) {
         GLES30.glBindBuffer(GLES30.GL_COPY_READ_BUFFER, buffer.id)
         checkError()
 
