@@ -56,6 +56,19 @@
 #endif
 
 
+#if OGL_STATE_SAVER_ENABLE
+
+#define OGL_SAVE_FRAMEBUFFER GLFrameBufferSaver ogl_framebuffer_saver
+#define OGL_SAVE_DRAWOPTION GLDrawOptionSaver ogl_drawoption_saver
+
+#else
+
+#define OGL_SAVE_FRAMEBUFFER
+#define OGL_SAVE_DRAWOPTION
+
+#endif
+
+
 
 #include <memory>
 #include <string>

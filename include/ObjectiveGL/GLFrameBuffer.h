@@ -214,7 +214,7 @@ public:
 
     void setRenderBuffer(shared_ptr<GLRenderBuffer> renderBuffer) {
         colorTextures.clear();
-        GLFrameBufferSaver saver;
+        OGL_SAVE_FRAMEBUFFER;
         GLCHECK(glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID));
         GLCHECK(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, renderBuffer->renderBufferID));
 #ifdef ES3
@@ -228,7 +228,7 @@ public:
         GLCHECK(glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID));
         check();
         program->use();
-        GLDrawOptionSaver saver;
+        OGL_SAVE_DRAWOPTION;
         option.use();
         vao->draw(program);
     }
@@ -240,7 +240,7 @@ public:
     void clearColor(GLfloat red = 0, GLfloat green = 0, GLfloat blue = 0, GLfloat alpha = 1)
     {
         check();
-        GLFrameBufferSaver saver;
+        OGL_SAVE_FRAMEBUFFER;
         GLCHECK(glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID));
         GLCHECK(glClearColor(red, green, blue, alpha));
         GLCHECK(glClear(GL_COLOR_BUFFER_BIT));
@@ -249,7 +249,7 @@ public:
     void clearDepth(GLclampf depth = 1)
     {
         check();
-        GLFrameBufferSaver saver;
+        OGL_SAVE_FRAMEBUFFER;
         GLCHECK(glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID));
         GLCHECK(glClearDepthf(depth));
         GLCHECK(glClear(GL_DEPTH_BUFFER_BIT));
@@ -258,7 +258,7 @@ public:
     void clearStencil(GLint s = 0)
     {
         check();
-        GLFrameBufferSaver saver;
+        OGL_SAVE_FRAMEBUFFER;
         GLCHECK(glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID));
         GLCHECK(glClearStencil(s));
         GLCHECK(glClear(GL_STENCIL_BUFFER_BIT));
@@ -276,7 +276,7 @@ public:
             return colorTextures[0];
         }
         else {
-            GLFrameBufferSaver saver;
+            OGL_SAVE_FRAMEBUFFER;
             GLCHECK(glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID));
             GLint viewport[4];
             GLCHECK(glGetIntegerv(GL_VIEWPORT, viewport));
