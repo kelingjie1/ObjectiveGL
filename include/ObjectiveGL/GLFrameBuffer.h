@@ -264,6 +264,13 @@ public:
         GLCHECK(glClear(GL_STENCIL_BUFFER_BIT));
     }
     
+    bool isRenderToTexture() {
+        if (colorTextures.size()>0) {
+            return true;
+        }
+        return false;
+    }
+    
     shared_ptr<GLTexture> getTexture() {
         if (colorTextures.size()>0) {
             return colorTextures[0];
