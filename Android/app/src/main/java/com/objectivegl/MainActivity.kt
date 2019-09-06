@@ -41,36 +41,13 @@ class MainActivity : AppCompatActivity(), GLSurfaceView.Renderer {
     private fun normalDraw() {
         GLES20.glFinish()
         cost0 += measureTimeMillis {
-            grayProgram.setTexture("tex", texture)
-            fbo1.draw(grayProgram, vertexArray, glOpt, texture1)
+            for (i in 0 until 50) {
+                grayProgram.setTexture("tex", texture)
+                fbo1.draw(grayProgram, vertexArray, glOpt, texture1)
 
-            grayProgram.setTexture("tex", texture1)
-            fbo2.draw(grayProgram, vertexArray, glOpt, texture2)
-
-            grayProgram.setTexture("tex", texture2)
-            fbo1.draw(grayProgram, vertexArray, glOpt, texture1)
-
-            grayProgram.setTexture("tex", texture1)
-            fbo2.draw(grayProgram, vertexArray, glOpt, texture2)
-
-            grayProgram.setTexture("tex", texture2)
-            fbo1.draw(grayProgram, vertexArray, glOpt, texture1)
-
-            grayProgram.setTexture("tex", texture1)
-            fbo2.draw(grayProgram, vertexArray, glOpt, texture2)
-
-            grayProgram.setTexture("tex", texture2)
-            fbo1.draw(grayProgram, vertexArray, glOpt, texture1)
-
-            grayProgram.setTexture("tex", texture1)
-            fbo2.draw(grayProgram, vertexArray, glOpt, texture2)
-
-            grayProgram.setTexture("tex", texture2)
-            fbo1.draw(grayProgram, vertexArray, glOpt, texture1)
-
-            grayProgram.setTexture("tex", texture1)
-            fbo2.draw(grayProgram, vertexArray, glOpt, texture2)
-
+                grayProgram.setTexture("tex", texture1)
+                fbo1.draw(grayProgram, vertexArray, glOpt, texture)
+            }
             GLES20.glFinish()
         }
     }
@@ -80,61 +57,13 @@ class MainActivity : AppCompatActivity(), GLSurfaceView.Renderer {
         cost1 += measureTimeMillis {
             program.setTexture("tex", texture)
             fbo2.draw(program, vertexArray, glOpt, texture2)
-
-            fastGrayProgram.use()
-            vertexArray.apply(fastGrayProgram)
-            glOpt.apply()
-            GLES20.glDrawArrays(vertexArray.primitives, 0, vertexArray.vertexCount)
-            GLES20.glFlush()
-
-            fastGrayProgram.use()
-            vertexArray.apply(fastGrayProgram)
-            glOpt.apply()
-            GLES20.glDrawArrays(vertexArray.primitives, 0, vertexArray.vertexCount)
-            GLES20.glFlush()
-
-            fastGrayProgram.use()
-            vertexArray.apply(fastGrayProgram)
-            glOpt.apply()
-            GLES20.glDrawArrays(vertexArray.primitives, 0, vertexArray.vertexCount)
-            GLES20.glFlush()
-
-            fastGrayProgram.use()
-            vertexArray.apply(fastGrayProgram)
-            glOpt.apply()
-            GLES20.glDrawArrays(vertexArray.primitives, 0, vertexArray.vertexCount)
-            GLES20.glFlush()
-
-            fastGrayProgram.use()
-            vertexArray.apply(fastGrayProgram)
-            glOpt.apply()
-            GLES20.glDrawArrays(vertexArray.primitives, 0, vertexArray.vertexCount)
-            GLES20.glFlush()
-
-            fastGrayProgram.use()
-            vertexArray.apply(fastGrayProgram)
-            glOpt.apply()
-            GLES20.glDrawArrays(vertexArray.primitives, 0, vertexArray.vertexCount)
-            GLES20.glFlush()
-
-            fastGrayProgram.use()
-            vertexArray.apply(fastGrayProgram)
-            glOpt.apply()
-            GLES20.glDrawArrays(vertexArray.primitives, 0, vertexArray.vertexCount)
-            GLES20.glFlush()
-
-            fastGrayProgram.use()
-            vertexArray.apply(fastGrayProgram)
-            glOpt.apply()
-            GLES20.glDrawArrays(vertexArray.primitives, 0, vertexArray.vertexCount)
-            GLES20.glFlush()
-
-            fastGrayProgram.use()
-            vertexArray.apply(fastGrayProgram)
-            glOpt.apply()
-            GLES20.glDrawArrays(vertexArray.primitives, 0, vertexArray.vertexCount)
-            GLES20.glFlush()
-
+            for (i in 0 until 100) {
+                fastGrayProgram.use()
+                vertexArray.apply(fastGrayProgram)
+                glOpt.apply()
+                GLES20.glDrawArrays(vertexArray.primitives, 0, vertexArray.vertexCount)
+                GLES20.glFlush()
+            }
             GLES20.glFinish()
         }
     }
@@ -143,8 +72,35 @@ class MainActivity : AppCompatActivity(), GLSurfaceView.Renderer {
         fbFetchDraw()
         normalDraw()
 
-        cost00 += measureTimeMillis { runTest(0) }
-        cost11 += measureTimeMillis { runTest(1) }
+        GLES20.glFinish()
+        cost00 += measureTimeMillis {
+            runTest(0)
+            GLES20.glFinish()
+        }
+
+        GLES20.glFinish()
+        cost11 += measureTimeMillis {
+            runTest(1)
+            GLES20.glFinish()
+        }
+    }
+
+    private fun feedbackTest() {
+        cost0 += measureTimeMillis {
+            runTest(2)
+        }
+    }
+
+    private fun feedbackGrayScaleTest() {
+        cost0 += measureTimeMillis {
+            runTest(3)
+        }
+    }
+
+    override fun onDrawFrame(gl: GL10?) {
+        drawTest()
+//        feedbackTest()
+//        feedbackGrayScaleTest()
 
         ++count
         if (count % 200 == 0) {
@@ -155,15 +111,6 @@ class MainActivity : AppCompatActivity(), GLSurfaceView.Renderer {
             cost1 = 0
             cost11 = 0
         }
-    }
-
-    private fun feedbackTest() {
-        runTest(2)
-    }
-
-    override fun onDrawFrame(gl: GL10?) {
-//        drawTest()
-        feedbackTest()
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
@@ -204,11 +151,20 @@ class MainActivity : AppCompatActivity(), GLSurfaceView.Renderer {
         init(null, 1)
     }
 
+    private fun feedbackGrayScaleInit() {
+        val bmp = BitmapFactory.decodeFile("/sdcard/_/0.jpg")
+
+        val buf = ByteBuffer.allocateDirect(bmp.byteCount).order(ByteOrder.nativeOrder())
+        bmp.copyPixelsToBuffer(buf)
+        init(buf, 2)
+    }
+
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         glView.renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
 
-//        drawInit()
-        feedbackInit()
+        drawInit()
+//        feedbackInit()
+//        feedbackGrayScaleInit()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

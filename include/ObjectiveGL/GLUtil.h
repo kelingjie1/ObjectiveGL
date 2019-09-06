@@ -88,4 +88,12 @@ public:
         return 0;
     }
 };
+
+#ifndef __APPLE__
+    static inline long ms(void) {
+        struct timespec res;
+        clock_gettime(CLOCK_BOOTTIME, &res);
+        return static_cast<long>(1000 * res.tv_sec + res.tv_nsec / 1e6);
+    }
+#endif
 }

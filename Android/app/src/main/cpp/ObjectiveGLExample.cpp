@@ -75,6 +75,21 @@ const string feedbackShader =
         }
     );
 
+const string feedbackGrayScaleShader =
+    string("#version 300 es\n") +
+    SHADER_STRING (
+        layout(location = 0) in float color;
+        const vec4 shift = vec4(16777216., 65536., 256., 1.);
+        out float grayColor;
+        void main() {
+            grayColor = color;
+        }
+    );
+
+static int _count = 0;
+static long _cost0 = 0;
+static long _cost1 = 0;
+
 static shared_ptr<GLContext> context;
 static shared_ptr<GLProgram> program;
 static shared_ptr<GLProgram> grayProgram;
@@ -108,10 +123,6 @@ static inline void drawInit(JNIEnv* env,
     fbo = GLFrameBuffer::create(0);
     fbo1 = GLFrameBuffer::create(-1);
     fbo2 = GLFrameBuffer::create(-1);
-
-    Vertex tri[] = {{0.0f, 0.5f, 0.0, 0.0}, {0.5f, 0.0, 0.0, 1.0}, {-0.5f, 0.0, 1.0, 0.0}};
-    vboTri = GLBuffer::create();
-    vboTri->alloc(sizeof(Vertex), 3, tri, GL_STATIC_DRAW);
 
     Vertex rec[] = {
         {-1.0f, -1.0f, 0.0f, 0.0f},
@@ -162,7 +173,6 @@ static inline void drawInit(JNIEnv* env,
 }
 
 static inline void feedbackInit() {
-    fbo = GLFrameBuffer::create(0);
     vao = GLVertexArray::create();
 
     vboFeedback = GLBuffer::create();
@@ -187,86 +197,100 @@ static inline void feedbackInit() {
 }
 
 static inline void feedbackDraw() {
+    glFinish();
     vao->computeUsingTransformFeedback(program);
+    glFinish();
 
-    int *feedback = static_cast<int *>(vboFeedback->lock(0, 0, GL_MAP_READ_BIT));
-    __android_log_print(ANDROID_LOG_WARN, "feedbackDraw", "feedback={%d, %d, %d, %d}", feedback[0], feedback[1], feedback[2], feedback[3]);
-    vboFeedback->unlock();
+//    int *feedback = static_cast<int *>(vboFeedback->lock(0, 0, GL_MAP_READ_BIT));
+//    __android_log_print(ANDROID_LOG_WARN, "feedbackDraw", "feedback={%d, %d, %d, %d}", feedback[0], feedback[1], feedback[2], feedback[3]);
+//    vboFeedback->unlock();
+
+//    vao->setBuffer(GL_ARRAY_BUFFER, vboPt);
+}
+
+static GLsizei pixelCount = 12/*80 * 720 * 16*/;
+static GLvoid *pixels = new float[pixelCount];
+
+static inline void feedbackGrayScaleInit(JNIEnv *env, jobject pixel_buf) {
+    vao = GLVertexArray::create();
+
+//    GLvoid *pixels = env->GetDirectBufferAddress(pixel_buf);
+//    __android_log_print(ANDROID_LOG_WARN, "feedbackGrayScaleInit", "first 1 color %u, %u %u, %u", ((unsigned char *)pixels)[0], ((unsigned char *)pixels)[1], ((unsigned char *)pixels)[2], ((unsigned char *)pixels)[3]);
+//    jlong pixelCount = env->GetDirectBufferCapacity(pixel_buf) / sizeof(int);
+
+    vboFeedback = GLBuffer::create();
+    vboFeedback->alloc(sizeof(float), pixelCount);
+//    vboFeedback->alloc(sizeof(int), 1);
+    vao->setBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, vboFeedback);
+
+    vboPt = GLBuffer::create();
+    vboPt->alloc(sizeof(float), pixelCount, pixels, GL_STATIC_DRAW);
 
     vao->setBuffer(GL_ARRAY_BUFFER, vboPt);
+    vector<GLVertexArrayParams> params;
+    params.emplace_back(GL_FLOAT, 1);
+    vao->setParams(params);
+
+    vao->setDrawMode(GL_POINTS);
+
+    program = GLProgram::create();
+    program->setTransformFeedbackShader(feedbackGrayScaleShader, {"grayColor"});
 }
 
-static inline long ms(void) {
-    struct timespec res;
-    clock_gettime(CLOCK_BOOTTIME, &res);
-    return static_cast<long>(1000 * res.tv_sec + res.tv_nsec / 1e6);
-}
+static inline void feedbackGrayScaleDraw() {
+    glFinish();
+    auto now = ms();
+    vao->computeUsingTransformFeedback(program);
+    glFinish();
+    _cost0 += ms() - now;
 
-//static int _count = 0;
-//static long _cost0 = 0;
-//static long _cost1 = 0;
+//    unsigned int *feedback = static_cast<unsigned int*>(vboFeedback->lock(0, 0, GL_MAP_READ_BIT));
+//    __android_log_print(ANDROID_LOG_WARN, "feedbackDraw", "first 4 color %u, %u %u, %u", feedback[0], feedback[1], feedback[2], feedback[3]);
+//    vboFeedback->unlock();
+
+//    vao->setBuffer(GL_ARRAY_BUFFER, vboPt);
+}
 
 static inline void normalDraw() {
-    glFinish();
+    glViewport(0, 0, 720, 1280);
+//    grayProgram->setTexture("tex", texImage);
+//    fbo1->draw(grayProgram, vao, opt);
 
 //    auto now = ms();
 
-    glViewport(0, 0, 720, 1280);
-    grayProgram->setTexture("tex", texImage);
-    fbo1->draw(grayProgram, vao, opt);
+//    glFinish();
+    for (int i = 0; i < 50; ++i) {
+        grayProgram->setTexture("tex", texImage);
+        fbo1->setColorTexture(texImage1);
+        fbo1->draw(grayProgram, vao, opt);
 
-    grayProgram->setTexture("tex", texImage1);
-    fbo2->draw(grayProgram, vao, opt);
+        grayProgram->setTexture("tex", texImage1);
+        fbo1->setColorTexture(texImage);
+        fbo1->draw(grayProgram, vao, opt);
 
-    grayProgram->setTexture("tex", texImage2);
-    fbo1->draw(grayProgram, vao, opt);
+        /*grayProgram->setTexture("tex", texImage1);
+        fbo2->draw(grayProgram, vao, opt);
 
-    grayProgram->setTexture("tex", texImage1);
-    fbo2->draw(grayProgram, vao, opt);
-
-    grayProgram->setTexture("tex", texImage2);
-    fbo1->draw(grayProgram, vao, opt);
-
-    grayProgram->setTexture("tex", texImage1);
-    fbo2->draw(grayProgram, vao, opt);
-
-    grayProgram->setTexture("tex", texImage2);
-    fbo2->draw(grayProgram, vao, opt);
-
-    grayProgram->setTexture("tex", texImage2);
-    fbo1->draw(grayProgram, vao, opt);
-
-    grayProgram->setTexture("tex", texImage1);
-    fbo2->draw(grayProgram, vao, opt);
-
-    grayProgram->setTexture("tex", texImage2);
-    fbo1->draw(grayProgram, vao, opt);
-
-    glFinish();
+        grayProgram->setTexture("tex", texImage2);
+        fbo1->draw(grayProgram, vao, opt);*/
+    }
+//    glFinish();
 
 //    _cost0 += ms() - now;
 }
 
 static inline void fbDraw() {
-    glFinish();
-
 //    auto now = ms();
 
     glViewport(0, 0, 720, 1280);
     grayProgram->setTexture("tex", texImage);
     fbo1->draw(grayProgram, vao, opt);
 
-    fbo1->draw(fastGrayProgram, vao, opt);
-    fbo1->draw(fastGrayProgram, vao, opt);
-    fbo1->draw(fastGrayProgram, vao, opt);
-    fbo1->draw(fastGrayProgram, vao, opt);
-    fbo1->draw(fastGrayProgram, vao, opt);
-    fbo1->draw(fastGrayProgram, vao, opt);
-    fbo1->draw(fastGrayProgram, vao, opt);
-    fbo1->draw(fastGrayProgram, vao, opt);
-    fbo1->draw(fastGrayProgram, vao, opt);
-
-    glFinish();
+//    glFinish();
+    for (int i = 0; i < 100; ++i) {
+        fbo1->draw(fastGrayProgram, vao, opt);
+    }
+//    glFinish();
 
 //    _cost1 += ms() - now;
 }
@@ -280,20 +304,15 @@ Java_com_objectivegl_MainActivity_runTest(
     if (c == 0) normalDraw();
     else if (c == 1) fbDraw();
     else if (c == 2) feedbackDraw();
-    /*fbDraw();
-    normalDraw();
+    else if (c == 3) feedbackGrayScaleDraw();
 
-    ++_count;
+    /*++_count;
     if (_count % 200 == 0) {
         __android_log_print(ANDROID_LOG_WARN, "drawTest", "cost0=%f, cost1=%f", (float)_cost0 /_count, (float)_cost1 /_count);
         _cost0 = 0;
         _cost1 = 0;
         _count = 0;
-    }
-
-    glViewport(0, 0, 1440, 2112);
-    grayProgram->setTexture("tex", texImage1);
-    fbo->draw(grayProgram, vao, opt);*/
+    }*/
 }
 
 extern "C" JNIEXPORT void JNICALL
@@ -304,5 +323,6 @@ Java_com_objectivegl_MainActivity_init (
     jint c) {
 
     if (c == 0) drawInit(env, pixel_buf);
-    else feedbackInit();
+    else if (c == 1) feedbackInit();
+    else if (c == 2) feedbackGrayScaleInit(env, pixel_buf);
 }
