@@ -3,7 +3,6 @@ package com.objectivegl
 import android.Manifest
 import android.graphics.BitmapFactory
 import android.opengl.GLES20
-import android.opengl.GLES30
 import android.opengl.GLSurfaceView
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
@@ -140,19 +139,16 @@ class MainActivity : AppCompatActivity(), GLSurfaceView.Renderer {
         }
     }
 
-    override fun onDrawFrame(gl: GL10?) {
+    private fun drawTest() {
         fbFetchDraw()
         normalDraw()
-
-//        program.setTexture("tex", texture2)
-//        fbo0.draw(program, vertexArray, glOpt, Pair(surfaceWidth, surfaceHeight))
 
         cost00 += measureTimeMillis { runTest(0) }
         cost11 += measureTimeMillis { runTest(1) }
 
         ++count
         if (count % 200 == 0) {
-            Log.d("MainActivity", "onDrawFrame: normalCost=${(cost0 * 10 / 200).toFloat() / 10}/${(cost00 * 10 / 200).toFloat() / 10}\tfbCost=${(cost1 * 10 / 200).toFloat() / 10}/${(cost11 * 10 / 200).toFloat() / 10}")
+            Log.d("MainActivity", "drawTest: normalCost=${(cost0 * 10 / 200).toFloat() / 10}/${(cost00 * 10 / 200).toFloat() / 10}\tfbCost=${(cost1 * 10 / 200).toFloat() / 10}/${(cost11 * 10 / 200).toFloat() / 10}")
             count = 0
             cost0 = 0
             cost00 = 0
@@ -161,19 +157,26 @@ class MainActivity : AppCompatActivity(), GLSurfaceView.Renderer {
         }
     }
 
+    private fun feedbackTest() {
+        runTest(2)
+    }
+
+    override fun onDrawFrame(gl: GL10?) {
+//        drawTest()
+        feedbackTest()
+    }
+
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
         surfaceWidth = width
         surfaceHeight = height
     }
 
-    override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
-        glView.renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
-
+    private fun drawInit() {
         val bmp = BitmapFactory.decodeFile("/sdcard/_/0.jpg")
 
         val buf = ByteBuffer.allocateDirect(bmp.byteCount).order(ByteOrder.nativeOrder())
         bmp.copyPixelsToBuffer(buf)
-        init(buf)
+        init(buf, 0)
 
         texture = GLTexture().apply { setImage(bmp) }
         texture1 = GLTexture().apply { setImage(bmp) }
@@ -197,18 +200,29 @@ class MainActivity : AppCompatActivity(), GLSurfaceView.Renderer {
         fbo2 = GLFrameBuffer(-1)
     }
 
+    private fun feedbackInit() {
+        init(null, 1)
+    }
+
+    override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
+        glView.renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
+
+//        drawInit()
+        feedbackInit()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 101)
 
-        glView.setEGLContextClientVersion(2)
+        glView.setEGLContextClientVersion(3)
         glView.setRenderer(this)
     }
 
     private external fun runTest(case: Int)
-    private external fun init(buf: ByteBuffer)
+    private external fun init(buf: ByteBuffer?, case: Int)
 
     companion object {
 

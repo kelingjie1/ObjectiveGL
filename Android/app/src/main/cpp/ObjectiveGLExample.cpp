@@ -65,6 +65,16 @@ const string fastGrayFragShader =
         }
     );
 
+const string feedbackShader =
+    string("#version 300 es\n") +
+    SHADER_STRING (
+        layout(location = 0) in int position;
+        out int out1;
+        void main() {
+            out1 = position * 2;
+        }
+    );
+
 static shared_ptr<GLContext> context;
 static shared_ptr<GLProgram> program;
 static shared_ptr<GLProgram> grayProgram;
@@ -74,6 +84,8 @@ static shared_ptr<GLFrameBuffer> fbo1;
 static shared_ptr<GLFrameBuffer> fbo2;
 static shared_ptr<GLBuffer> vboTri;
 static shared_ptr<GLBuffer> vboRec;
+static shared_ptr<GLBuffer> vboPt;
+static shared_ptr<GLBuffer> vboFeedback;
 static shared_ptr<GLVertexArray> vao;
 static shared_ptr<GLTexture> texImage;
 static shared_ptr<GLTexture> texImage1;
@@ -88,12 +100,8 @@ typedef struct {
 
 } Vertex;
 
-extern "C" JNIEXPORT void JNICALL
-Java_com_objectivegl_MainActivity_init (
-    JNIEnv* env,
-    jobject jobj,
-    jobject pixel_buf) {
-
+static inline void drawInit(JNIEnv* env,
+                            jobject pixel_buf) {
     context = GLContext::create();
     context->setCurrent();
 
@@ -153,6 +161,41 @@ Java_com_objectivegl_MainActivity_init (
     opt.enableBlend = false;
 }
 
+static inline void feedbackInit() {
+    fbo = GLFrameBuffer::create(0);
+    vao = GLVertexArray::create();
+
+    vboFeedback = GLBuffer::create();
+    vboFeedback->alloc(sizeof(int), 4);
+    vao->setBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, vboFeedback);
+
+    int index[4] = {1, 3, 5, 7};
+    vboPt = GLBuffer::create();
+    vboPt->alloc(sizeof(int), 4, index);
+
+    vao->setBuffer(GL_ARRAY_BUFFER, vboPt);
+    vector<GLVertexArrayParams> params;
+    params.emplace_back(GL_INT, 1);
+    vao->setParams(params);
+
+    vao->setDrawMode(GL_POINTS);
+
+    program = GLProgram::create();
+    program->setTransformFeedbackShader(feedbackShader, {"out1"});
+
+//    opt.rasterizerDiscard = true;
+}
+
+static inline void feedbackDraw() {
+    vao->computeUsingTransformFeedback(program);
+
+    int *feedback = static_cast<int *>(vboFeedback->lock(0, 0, GL_MAP_READ_BIT));
+    __android_log_print(ANDROID_LOG_WARN, "feedbackDraw", "feedback={%d, %d, %d, %d}", feedback[0], feedback[1], feedback[2], feedback[3]);
+    vboFeedback->unlock();
+
+    vao->setBuffer(GL_ARRAY_BUFFER, vboPt);
+}
+
 static inline long ms(void) {
     struct timespec res;
     clock_gettime(CLOCK_BOOTTIME, &res);
@@ -163,7 +206,7 @@ static inline long ms(void) {
 //static long _cost0 = 0;
 //static long _cost1 = 0;
 
-void normalDraw() {
+static inline void normalDraw() {
     glFinish();
 
 //    auto now = ms();
@@ -204,7 +247,7 @@ void normalDraw() {
 //    _cost0 += ms() - now;
 }
 
-void fbDraw() {
+static inline void fbDraw() {
     glFinish();
 
 //    auto now = ms();
@@ -235,7 +278,8 @@ Java_com_objectivegl_MainActivity_runTest(
         jint c) {
 
     if (c == 0) normalDraw();
-    else if  (c == 1) fbDraw();
+    else if (c == 1) fbDraw();
+    else if (c == 2) feedbackDraw();
     /*fbDraw();
     normalDraw();
 
@@ -250,4 +294,15 @@ Java_com_objectivegl_MainActivity_runTest(
     glViewport(0, 0, 1440, 2112);
     grayProgram->setTexture("tex", texImage1);
     fbo->draw(grayProgram, vao, opt);*/
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_objectivegl_MainActivity_init (
+    JNIEnv* env,
+    jobject jobj,
+    jobject pixel_buf,
+    jint c) {
+
+    if (c == 0) drawInit(env, pixel_buf);
+    else feedbackInit();
 }

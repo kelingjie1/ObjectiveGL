@@ -83,7 +83,11 @@ protected:
             logCallback()(level, log);
         }
         else {
+#ifdef __APPLE__
             printf("OGL:%s,%s",strlever[level].c_str(),log.c_str());
+#else
+            __android_log_print(ANDROID_LOG_ERROR, "GLError", "%s, %s", strlever[level].c_str(), log.c_str());
+#endif
         }
     }
 public:
