@@ -14,9 +14,8 @@ android {
         versionName "1.0"
         externalNativeBuild {
             cmake {
-                cppFlags "-std=c++14"
+                cppFlags "-std=c++14 -DES3"
                 arguments  "-DANDROID_ABI=armeabi-v7a", "-DANDROID_STL=c++_shared", "-DPROJECT_ROOT=../../../../.."
-                cppFlags "-DES3"
             }
         }
 
