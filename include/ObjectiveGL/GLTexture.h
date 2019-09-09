@@ -11,7 +11,7 @@
 #include "GLContext.h"
 #include "GLObject.h"
 
-namespace ObjectiveGL {
+OGL_NAMESPACE_BEGIN(ObjectiveGL)
 class OGL_API GLTexture : public GLShareObject {
     friend class GLContext;
 
@@ -92,5 +92,5 @@ public:
         
     }
 };
-};
+OGL_NAMESPACE_END(ObjectiveGL)
 

@@ -18,7 +18,7 @@
 #include <map>
 #include <functional>
 
-namespace ObjectiveGL {
+OGL_NAMESPACE_BEGIN(ObjectiveGL)
 using namespace std;
     
     
@@ -296,4 +296,4 @@ public:
     }
 
 };
-}
+OGL_NAMESPACE_END(ObjectiveGL)

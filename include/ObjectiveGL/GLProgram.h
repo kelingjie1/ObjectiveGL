@@ -20,7 +20,7 @@
 #include <map>
 #define SHADER_STRING(x) #x
 
-namespace ObjectiveGL {
+OGL_NAMESPACE_BEGIN(ObjectiveGL)
 using namespace std;
     
 enum GLProgramType {
@@ -437,4 +437,4 @@ public:
         }
     }
 };
-}
+OGL_NAMESPACE_END(ObjectiveGL)

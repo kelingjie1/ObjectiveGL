@@ -11,7 +11,7 @@
 #include "GLPlatform.h"
 #include <memory>
 
-namespace ObjectiveGL {
+OGL_NAMESPACE_BEGIN(ObjectiveGL)
 using namespace std;
 
 class OGL_API GLObject {
@@ -44,4 +44,4 @@ public:
 #endif
     }
 };
-}
+OGL_NAMESPACE_END(ObjectiveGL)

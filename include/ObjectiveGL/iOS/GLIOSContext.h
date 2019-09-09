@@ -13,7 +13,7 @@
 #include "GLIOSUtil.h"
 #include <iostream>
 
-namespace ObjectiveGL {
+OGL_NAMESPACE_BEGIN(ObjectiveGL)
     using namespace std;
     
     class GLIOSShareGroup:public GLShareGroup {

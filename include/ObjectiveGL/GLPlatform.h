@@ -55,6 +55,8 @@
     #define OGL_API __attribute__((visibility("default")))
 #endif
 
+#define OGL_NAMESPACE_BEGIN(x) namespace x {
+#define OGL_NAMESPACE_END(x) }
 
 #if OGL_STATE_SAVER_ENABLE
 

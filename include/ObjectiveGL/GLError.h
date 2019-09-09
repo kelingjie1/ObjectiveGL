@@ -16,7 +16,7 @@
 
 
 
-namespace ObjectiveGL {
+OGL_NAMESPACE_BEGIN(ObjectiveGL)
 using namespace std;
 enum ObjectiveGLError {
     ObjectiveGLError_NoError,
@@ -153,4 +153,4 @@ public:
         }
     }
 };
-}
+OGL_NAMESPACE_END(ObjectiveGL)

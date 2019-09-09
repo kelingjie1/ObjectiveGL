@@ -11,7 +11,7 @@
 #include "GLError.h"
 #include <iostream>
 
-namespace ObjectiveGL {
+OGL_NAMESPACE_BEGIN(ObjectiveGL)
 using namespace std;
 
 class OGL_API GLCaps {
@@ -23,4 +23,4 @@ class OGL_API GLCaps {
     }
 #endif
 };
-}
+OGL_NAMESPACE_END(ObjectiveGL)

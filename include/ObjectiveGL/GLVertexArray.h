@@ -18,7 +18,7 @@
 #include "GLUtil.h"
 #include "GLProgram.h"
 
-namespace ObjectiveGL {
+OGL_NAMESPACE_BEGIN(ObjectiveGL)
 using namespace std;
 
 class OGL_API GLBaseVertex {
@@ -203,4 +203,4 @@ public:
 };
 
 
-}
+OGL_NAMESPACE_END(ObjectiveGL)
