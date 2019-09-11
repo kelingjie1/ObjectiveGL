@@ -2,8 +2,7 @@ package com.objectivegl
 
 import android.Manifest
 import android.graphics.BitmapFactory
-import android.opengl.GLES20
-import android.opengl.GLSurfaceView
+import android.opengl.*
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v7.app.AppCompatActivity
@@ -17,6 +16,10 @@ import javax.microedition.khronos.opengles.GL10
 import kotlin.system.measureTimeMillis
 
 class MainActivity : AppCompatActivity(), GLSurfaceView.Renderer {
+    private lateinit var eglMainCtx: EGLContext
+    private lateinit var eglMainDsp: EGLDisplay
+    private lateinit var eglMainDrawSurface: EGLSurface
+    private lateinit var eglMainReadSurface: EGLSurface
     private var surfaceHeight: Int = 0
     private var surfaceWidth: Int = 0
     private lateinit var fastGrayProgram: GLProgram
@@ -99,6 +102,10 @@ class MainActivity : AppCompatActivity(), GLSurfaceView.Renderer {
 
     override fun onDrawFrame(gl: GL10?) {
         drawTest()
+
+        EGL14.eglMakeCurrent(eglMainDsp, eglMainDrawSurface, eglMainReadSurface, eglMainCtx)
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+        GLES20.glClearColor(1.0f, 1.0f, 0.0f, 1.0f)
 //        feedbackTest()
 //        feedbackGrayScaleTest()
 
@@ -162,7 +169,14 @@ class MainActivity : AppCompatActivity(), GLSurfaceView.Renderer {
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         glView.renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
 
+        eglMainCtx = EGL14.eglGetCurrentContext()
+        eglMainDsp = EGL14.eglGetCurrentDisplay()
+        eglMainDrawSurface = EGL14.eglGetCurrentSurface(EGL14.EGL_DRAW)
+        eglMainReadSurface = EGL14.eglGetCurrentSurface(EGL14.EGL_DRAW)
+
         drawInit()
+
+        EGL14.eglMakeCurrent(eglMainDsp, eglMainDrawSurface, eglMainReadSurface, eglMainCtx)
 //        feedbackInit()
 //        feedbackGrayScaleInit()
     }

@@ -5,6 +5,7 @@
 #include "android/log.h"
 #include "ObjectiveGL.h"
 #include <string>
+#include "Platform/android/GLAndContext.h"
 
 using namespace ObjectiveGL;
 using namespace std;
@@ -117,7 +118,7 @@ typedef struct {
 
 static inline void drawInit(JNIEnv* env,
                             jobject pixel_buf) {
-    context = GLContext::create();
+    context = GLAndContext::create();
     context->setCurrent();
 
     fbo = GLFrameBuffer::create(0);
@@ -300,6 +301,8 @@ Java_com_objectivegl_MainActivity_runTest(
         JNIEnv* env,
         jobject jobj,
         jint c) {
+
+    context->setCurrent();
 
     if (c == 0) normalDraw();
     else if (c == 1) fbDraw();
