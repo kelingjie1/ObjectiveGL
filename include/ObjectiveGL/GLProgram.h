@@ -115,6 +115,10 @@ public:
             return shared_ptr<GLProgram>(new GLProgram());
         }
     }
+    
+    void clearTextures() {
+        textureList.clear();
+    }
 
     ~GLProgram() {
         check();
