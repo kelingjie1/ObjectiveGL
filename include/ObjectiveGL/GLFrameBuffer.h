@@ -184,7 +184,7 @@ public:
         return shared_ptr<GLFrameBuffer>(new GLFrameBuffer(backendFrameBuffer));
     }
     
-#ifdef ES3
+#if OGL_GLVERSION_300_ES || OGL_GLVERSION_330
     void setColorTextures(vector<shared_ptr<GLTexture> > textures) {
         colorTextures = textures;
         GLCHECK(glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID));
@@ -199,7 +199,7 @@ public:
 #endif
 
     void setColorTexture(shared_ptr<GLTexture> texture) {
-#ifdef ES3
+#if OGL_GLVERSION_300_ES || OGL_GLVERSION_330
         vector<shared_ptr<GLTexture>> vec;
         vec.push_back(texture);
         setColorTextures(vec);
@@ -215,7 +215,7 @@ public:
         OGL_SAVE_FRAMEBUFFER;
         GLCHECK(glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID));
         GLCHECK(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, renderBuffer->renderBufferID));
-#ifdef ES3
+#if OGL_GLVERSION_300_ES || OGL_GLVERSION_330
         GLenum buf = GL_COLOR_ATTACHMENT0;
         GLCHECK(glDrawBuffers(1, &buf));
 #endif

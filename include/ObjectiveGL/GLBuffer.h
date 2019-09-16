@@ -69,7 +69,7 @@ public:
         GLCHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
         
     }
-#ifdef ES3
+#if OGL_GLVERSION_300_ES
     void accessData(function<void(void *data)> func, GLuint offset = 0, GLuint length = 0,
                     GLbitfield access = GL_MAP_READ_BIT | GL_MAP_WRITE_BIT) {
         check();

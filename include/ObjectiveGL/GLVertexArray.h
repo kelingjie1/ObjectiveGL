@@ -53,7 +53,7 @@ protected:
     vector<GLVertexArrayParams> params;
 
     GLVertexArray():eboType(GL_UNSIGNED_INT),drawCount(0) {
-#ifdef ES3
+#if OGL_GLVERSION_300_ES || OGL_GLVERSION_330
         GLCHECK(glGenVertexArrays(1, &vao));
         
 #endif
@@ -63,7 +63,7 @@ protected:
     void draw(shared_ptr<GLProgram> program) {
         check();
         auto count = drawCount;
-#ifdef ES3
+#if OGL_GLVERSION_300_ES || OGL_GLVERSION_330
         GLCHECK(glBindVertexArray(vao));
 #endif
         for (auto &buffer:bufferMap) {
@@ -88,7 +88,7 @@ protected:
             GLCHECK(glDrawArrays(mode, 0, count));
             
         }
-#ifdef ES3
+#if OGL_GLVERSION_300_ES || OGL_GLVERSION_330
         GLCHECK(glBindVertexArray(0));
 #else
         for (auto &buffer:bufferMap) {
@@ -133,7 +133,7 @@ protected:
     }
     
 public:
-#ifdef ES3
+#if OGL_GLVERSION_300_ES || OGL_GLVERSION_330
     GLuint vao;
 #endif
     
@@ -149,7 +149,7 @@ public:
 
     ~GLVertexArray() {
         check();
-#ifdef ES3
+#if OGL_GLVERSION_300_ES || OGL_GLVERSION_330
         GLCHECK(glDeleteVertexArrays(1, &vao));
         
 #endif
@@ -168,7 +168,7 @@ public:
     void setParams(vector<GLVertexArrayParams> params) {
         check();
         this->params = params;
-#ifdef ES3
+#if OGL_GLVERSION_300_ES || OGL_GLVERSION_330
         GLCHECK(glBindVertexArray(vao));
         GLCHECK(glBindVertexArray(0));
 #endif
@@ -181,7 +181,7 @@ public:
     void setDrawMode(GLenum mode) {
         this->mode = mode;
     }
-#ifdef ES3
+#if OGL_GLVERSION_300_ES || OGL_GLVERSION_330
     void computeUsingTransformFeedback(shared_ptr<GLProgram> program) {
         program->use();
         GLCHECK(glEnable(GL_RASTERIZER_DISCARD));
