@@ -204,8 +204,6 @@ public:
         vec.push_back(texture);
         setColorTextures(vec);
 #else
-        textures.clear();
-        textures.push_back(texture);
         GLCHECK(glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID));
         GLCHECK(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
                                        texture->textureID, 0));
