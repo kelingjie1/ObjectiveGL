@@ -32,7 +32,8 @@ protected:
 
 public:
     GLuint renderBufferID;
-    
+    int width = 0;
+    int height = 0;
     static shared_ptr<GLRenderBuffer> create(int backendRenderBuffer = -1, function<void(GLRenderBuffer *renderbuffer)> deleter = nullptr) {
         if (deleter) {
             return shared_ptr<GLRenderBuffer>(new GLRenderBuffer(backendRenderBuffer),deleter);

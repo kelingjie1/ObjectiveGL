@@ -90,12 +90,11 @@ protected:
         }
 #if OGL_GLVERSION_300_ES || OGL_GLVERSION_330
         GLCHECK(glBindVertexArray(0));
-#else
+#endif
         for (auto &buffer:bufferMap) {
             GLCHECK(glBindBuffer(buffer.first, 0));
             
         }
-#endif
     }
     
     void useParams(shared_ptr<GLProgram> program) {
@@ -168,10 +167,6 @@ public:
     void setParams(vector<GLVertexArrayParams> params) {
         check();
         this->params = params;
-#if OGL_GLVERSION_300_ES || OGL_GLVERSION_330
-        GLCHECK(glBindVertexArray(vao));
-        GLCHECK(glBindVertexArray(0));
-#endif
     }
     
     void setElementBufferType(GLenum type) {

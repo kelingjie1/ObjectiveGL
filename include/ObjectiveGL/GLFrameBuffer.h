@@ -145,9 +145,7 @@ class OGL_API GLFrameBuffer : public GLShareObject {
     friend class GLContext;
 
 protected:
-    bool isBackend;
-    
-    GLFrameBuffer(int backendFrameBuffer) {
+    GLFrameBuffer(int backendFrameBuffer, int width, int height):width(width),height(height) {
         if (backendFrameBuffer<0) {
             GLCHECK(glGenFramebuffers(1, &frameBufferID));
             isBackend = false;
@@ -160,7 +158,12 @@ protected:
 
 public:
     vector<shared_ptr<GLTexture>> colorTextures;
+    shared_ptr<GLRenderBuffer> renderBuffer;
     GLuint frameBufferID;
+    int width = 0;
+    int height = 0;
+    bool autoViewPortSize = true;
+    bool isBackend;
     ~GLFrameBuffer() {
         if (!isBackend) {
             check();
@@ -169,24 +172,25 @@ public:
         
     }
     
-    static shared_ptr<GLFrameBuffer> create(int backendFrameBuffer = -1, function<void(GLFrameBuffer *framebuffer)> deleter = nullptr) {
+    static shared_ptr<GLFrameBuffer> create(int backendFrameBuffer = -1, int width = 0, int height = 0, function<void(GLFrameBuffer *framebuffer)> deleter = nullptr) {
         if (deleter) {
-            return shared_ptr<GLFrameBuffer>(new GLFrameBuffer(backendFrameBuffer),deleter);
+            return shared_ptr<GLFrameBuffer>(new GLFrameBuffer(backendFrameBuffer,width,height),deleter);
         }
         else {
-            return shared_ptr<GLFrameBuffer>(new GLFrameBuffer(backendFrameBuffer));
+            return shared_ptr<GLFrameBuffer>(new GLFrameBuffer(backendFrameBuffer,width,height));
         }
     }
     
-    static shared_ptr<GLFrameBuffer> createWithCurrent() {
+    static shared_ptr<GLFrameBuffer> createWithCurrent(int width,int height) {
         GLint backendFrameBuffer = 0;
         glGetIntegerv(GL_FRAMEBUFFER_BINDING, &backendFrameBuffer);
-        return shared_ptr<GLFrameBuffer>(new GLFrameBuffer(backendFrameBuffer));
+        return shared_ptr<GLFrameBuffer>(new GLFrameBuffer(backendFrameBuffer,width,height));
     }
     
 #if OGL_GLVERSION_300_ES || OGL_GLVERSION_330
     void setColorTextures(vector<shared_ptr<GLTexture> > textures) {
         colorTextures = textures;
+        renderBuffer = nullptr;
         GLCHECK(glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID));
         vector<GLenum> bufs;
         for (int i = 0; i < (int)textures.size(); i++) {
@@ -204,6 +208,9 @@ public:
         vec.push_back(texture);
         setColorTextures(vec);
 #else
+        colorTextures.clear();
+        colorTextures.push_back(texture);
+        renderBuffer = nullptr;
         GLCHECK(glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID));
         GLCHECK(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
                                        texture->textureID, 0));
@@ -228,6 +235,21 @@ public:
         program->use();
         OGL_SAVE_DRAWOPTION;
         option.use();
+        if (autoViewPortSize) {
+            if (width&&height) {
+                GLCHECK(glViewport(0,0,width,height));
+            }
+            else if (isRenderToTexture()) {
+                auto &texture = colorTextures[0];
+                GLCHECK(glViewport(0,0,texture->width,texture->height));
+            }
+            else if (renderBuffer) {
+                GLCHECK(glViewport(0,0,renderBuffer->width,renderBuffer->height));
+            }
+            else {
+                GLLog::logWarning("glViewport not auto set before draw");
+            }
+        }
         vao->draw(program);
     }
     
