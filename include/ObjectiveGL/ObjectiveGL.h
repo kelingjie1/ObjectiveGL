@@ -15,6 +15,7 @@
 #include "GLProgram.h"
 #include "GLRenderBuffer.h"
 #include "GLTexture.h"
+#include "GLTexturePool.h"
 #include "GLVertexArray.h"
 #include "GLError.h"
 

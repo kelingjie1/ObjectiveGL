@@ -11,11 +11,11 @@
 #include "GLError.h"
 #include <iostream>
 
-namespace ObjectiveGL {
+OGL_NAMESPACE_BEGIN(ObjectiveGL)
 using namespace std;
 
 class OGL_API GLCaps {
-#ifdef GLES3
+#if OGL_GLVERSION_300_ES
     static GLint MAJOR_VERSION() {
         GLint value;
         GLCHECK(glGetIntegerv(GL_MAJOR_VERSION, &value));
@@ -23,4 +23,4 @@ class OGL_API GLCaps {
     }
 #endif
 };
-}
+OGL_NAMESPACE_END(ObjectiveGL)

@@ -15,7 +15,7 @@
 typedef int GLShareGroupID;
 typedef int GLContextID;
 
-namespace ObjectiveGL {
+OGL_NAMESPACE_BEGIN(ObjectiveGL)
 using namespace std;
 
 class OGL_API GLShareGroup {
@@ -87,4 +87,4 @@ public:
     }
 #endif
 };
-}
+OGL_NAMESPACE_END(ObjectiveGL)

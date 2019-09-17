@@ -15,7 +15,7 @@
 #include "GLError.h"
 
 
-namespace ObjectiveGL {
+OGL_NAMESPACE_BEGIN(ObjectiveGL)
 using namespace std;
 static const string passThroughVertexShader = string("#version 300 es\n") +
                                               GLSTRING(
@@ -88,4 +88,4 @@ public:
         return 0;
     }
 };
-}
+OGL_NAMESPACE_END(ObjectiveGL)

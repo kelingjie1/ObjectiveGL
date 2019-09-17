@@ -13,7 +13,7 @@
 #include "GLContext.h"
 #include <memory>
 
-namespace ObjectiveGL {
+OGL_NAMESPACE_BEGIN(ObjectiveGL)
 using namespace std;
 
 class OGL_API GLRenderBuffer : public GLShareObject {
@@ -52,4 +52,4 @@ public:
         GLCHECK(glDeleteRenderbuffers(1, &renderBufferID));
     }
 };
-}
+OGL_NAMESPACE_END(ObjectiveGL)

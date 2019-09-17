@@ -14,7 +14,7 @@
 #include "GLObject.h"
 #include "GLTexture.h"
 
-namespace ObjectiveGL {
+OGL_NAMESPACE_BEGIN(ObjectiveGL)
 using namespace std;
 
 class OGL_API GLBuffer : public GLShareObject {
@@ -69,7 +69,7 @@ public:
         GLCHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
         
     }
-#ifdef ES3
+#if OGL_GLVERSION_300_ES
     void accessData(function<void(void *data)> func, GLuint offset = 0, GLuint length = 0,
                     GLbitfield access = GL_MAP_READ_BIT | GL_MAP_WRITE_BIT) {
         check();
@@ -103,15 +103,16 @@ public:
         
         
     }
-    
+
+#endif
     void bind(GLenum target) {
         GLCHECK(glBindBuffer(target, bufferID));
     }
-    
+
     void unbind(GLenum target) {
         GLCHECK(glBindBuffer(target, 0));
     }
-    
+
     void copyFromBuffer(shared_ptr<GLBuffer> buffer,GLuint readOffset=0,GLuint writeOffset=0,GLsizei size=0) {
         GLCHECK(glBindBuffer(GL_COPY_READ_BUFFER, buffer->bufferID));
         GLCHECK(glBindBuffer(GL_COPY_WRITE_BUFFER, bufferID));
@@ -120,7 +121,6 @@ public:
         }
         GLCHECK(glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, readOffset, writeOffset, size));
     }
-#endif
 };
 
-}
+OGL_NAMESPACE_END(ObjectiveGL)

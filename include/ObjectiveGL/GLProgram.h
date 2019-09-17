@@ -20,7 +20,7 @@
 #include <map>
 #define SHADER_STRING(x) #x
 
-namespace ObjectiveGL {
+OGL_NAMESPACE_BEGIN(ObjectiveGL)
 using namespace std;
     
 enum GLProgramType {
@@ -115,6 +115,10 @@ public:
             return shared_ptr<GLProgram>(new GLProgram());
         }
     }
+    
+    void clearTextures() {
+        textureList.clear();
+    }
 
     ~GLProgram() {
         check();
@@ -146,7 +150,7 @@ public:
         link();
         type = GLProgramTypeRender;
     }
-#ifdef ES3
+#if OGL_GLVERSION_300_ES || OGL_GLVERSION_330
     void setTransformFeedbackShader(string vs,vector<const GLchar*> varyings,GLenum bufferMode = GL_INTERLEAVED_ATTRIBS) {
         vertexShaderID = compileShader(vs, GL_VERTEX_SHADER);
         GLCHECK(glAttachShader(programID, vertexShaderID));
@@ -229,7 +233,7 @@ public:
         check();
 
     }
-#ifdef ES3
+#if OGL_GLVERSION_300_ES || OGL_GLVERSION_330
     void setUniform(GLuint location, GLuint x) {
         setUniform(location, [=] {
             GLCHECK(glUniform1ui(location, x));
@@ -382,7 +386,7 @@ public:
         setUniform(location, x, y, z, w);
     }
 
-#ifdef ES3
+#if OGL_GLVERSION_300_ES || OGL_GLVERSION_330
     void setUniform(string name, GLuint x) {
         auto location = getUniformLocation(name);
         setUniform(location, x);
@@ -437,4 +441,4 @@ public:
         }
     }
 };
-}
+OGL_NAMESPACE_END(ObjectiveGL)
