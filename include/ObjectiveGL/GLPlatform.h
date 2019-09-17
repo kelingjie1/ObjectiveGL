@@ -34,9 +34,9 @@
 
 #endif
 
-#if __ANDROID__
+#if ANDROID
 
-    #define OGL_PLATFORM_ANDOID 1
+    #define OGL_PLATFORM_ANDROID 1
     #define OGL_PLATFORM_MOBILE 1
 
 #elif __APPLE__
@@ -89,6 +89,8 @@
 
     #endif
 #elif OGL_PLATFORM_ANDROID
+
+#include "android/log.h"
 
     #if OGL_GLVERSION_300_ES
     #include <GLES3/gl3.h>
