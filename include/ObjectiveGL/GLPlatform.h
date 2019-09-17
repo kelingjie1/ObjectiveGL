@@ -31,6 +31,7 @@
 
 #else
 
+#include <android/log.h>
 #ifdef ES3
 
 #include <GLES3/gl3.h>
