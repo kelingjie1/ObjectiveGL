@@ -108,6 +108,20 @@
 
 #endif
 
+#if OGL_GLVERSION_300_ES
+
+#define OGL_SHADER_PRIFIX string("#version 300 ES\n")
+
+#elif OGL_GLVERSION_200_ES
+
+#define OGL_SHADER_PRIFIX string("")
+
+#elif OGL_GLVERSION_330
+
+#define OGL_SHADER_PRIFIX string("#version 330\n")
+
+#endif
+
 
 
 #include <memory>
