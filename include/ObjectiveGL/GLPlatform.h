@@ -40,14 +40,15 @@
     #define OGL_PLATFORM_MOBILE 1
 
 #elif __APPLE__
-    #if __MACH__
+    #if TARGET_OS_IPHONE
+    #define OGL_PLATFORM_IOS 1
+    #define OGL_PLATFORM_MOBILE 1
+    #elif TARGET_OS_MAC
     #define OGL_PLATFORM_MAC 1
     #define OGL_PLATFORM_PC 1
     #else
-    #define OGL_PLATFORM_IOS 1
-    #define OGL_PLATFORM_MOBILE 1
+    #error OpenGL Version Not Surpport
     #endif
-
 #elif WIN32
 
     #define OGL_PLATFORM_WINDOWS 1
@@ -120,6 +121,8 @@
 
 #define OGL_SHADER_PRIFIX string("#version 330\n")
 
+#else
+    #error OpenGL Version Not Define
 #endif
 
 
