@@ -90,6 +90,36 @@ public:
         return 0;
     }
 
+    static inline const string converShaderAuto(const string &src) {
+        auto isVertexShader = src.find("gl_Position");
+
+        if (src.find("#version 330") != string::npos) {
+#if OGL_GLVERSION_330
+            return src;
+#elif OGL_GLVERSION_300_ES
+            return shader330ToES3(src, isVertexShader);
+#else
+            return shader3To2(src, isVertextShader);
+#endif
+
+        } else if (src.find("#version 300 es") != string::npos) {
+#if OGL_GLVERSION_330
+            return shaderES3To330(src, isVertexShader);
+#elif OGL_GLVERSION_300_ES
+            return src;
+#else
+            return shader3To2(src, isVertextShader);
+#endif
+
+        } else {
+#if OGL_GLVERSION_330 || OGL_GLVERSION_300_ES
+            return shader3To2(src, isVertexShader);
+#else
+            return src;
+#endif
+        }
+    }
+
     static inline const string shader2ToES3(const string &src, bool isVertexShader = false) {
         if (src.find("#version 300 es") != string::npos) {
             return src;
