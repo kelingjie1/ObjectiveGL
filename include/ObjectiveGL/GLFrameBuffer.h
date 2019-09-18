@@ -290,7 +290,7 @@ public:
         }
         return false;
     }
-    
+#if OGL_GLVERSION_300_ES || OGL_GLVERSION_330
     shared_ptr<GLTexture> getTexture() {
         if (colorTextures.size()>0) {
             return colorTextures[0];
@@ -314,6 +314,24 @@ public:
             return texture;
         }
     }
-
+#else
+    shared_ptr<GLTexture> getTexture() {
+        if (colorTextures.size()>0) {
+            return colorTextures[0];
+        }
+        else {
+            OGL_SAVE_FRAMEBUFFER;
+            GLCHECK(glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID));
+            GLint viewport[4];
+            GLCHECK(glGetIntegerv(GL_VIEWPORT, viewport));
+            char *buffer = new char[viewport[2]*viewport[3]*4];
+            GLCHECK(glReadPixels(viewport[0], viewport[1], viewport[2], viewport[3], GL_RGBA, GL_UNSIGNED_BYTE, buffer));
+            auto texture = GLTexture::create();
+            texture->setImageData(buffer, viewport[2], viewport[3]);
+            delete [] buffer;
+            return texture;
+        }
+    }
+#endif
 };
 OGL_NAMESPACE_END(ObjectiveGL)

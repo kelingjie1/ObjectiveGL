@@ -112,7 +112,7 @@ public:
     void unbind(GLenum target) {
         GLCHECK(glBindBuffer(target, 0));
     }
-
+#if OGL_GLVERSION_300_ES || OGL_GLVERSION_330
     void copyFromBuffer(shared_ptr<GLBuffer> buffer,GLuint readOffset=0,GLuint writeOffset=0,GLsizei size=0) {
         GLCHECK(glBindBuffer(GL_COPY_READ_BUFFER, buffer->bufferID));
         GLCHECK(glBindBuffer(GL_COPY_WRITE_BUFFER, bufferID));
@@ -121,6 +121,7 @@ public:
         }
         GLCHECK(glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, readOffset, writeOffset, size));
     }
+#endif
 };
 
 OGL_NAMESPACE_END(ObjectiveGL)

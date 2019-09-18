@@ -120,6 +120,8 @@
 
 #define OGL_SHADER_PRIFIX string("#version 330\n")
 
+#else
+    #error OpenGL Version Not Define
 #endif
 
 
