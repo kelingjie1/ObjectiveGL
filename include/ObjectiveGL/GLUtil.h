@@ -16,42 +16,8 @@
 #include <iostream>
 #include "GLError.h"
 
-
 OGL_NAMESPACE_BEGIN(ObjectiveGL)
 using namespace std;
-static const string passThroughVertexShader = string("#version 300 es\n") +
-                                              GLSTRING(
-                                                  precision
-                                                  highp float;
-                                                  layout(location = 0)
-                                                  in
-                                                  vec2 position;
-                                                  layout(location = 1)
-                                                  in
-                                                  vec2 coord;
-                                                  out
-                                                  vec2 uv;
-                                                  void main() {
-                                                      GLCHECK(gl_Position = vec4(position, 0., 1.));
-                                                      uv = coord;
-                                                  }
-                                              );
-static const string passThroughFragmentShader = string("#version 300 es\n") +
-                                                GLSTRING(
-                                                    precision
-                                                    highp float;
-                                                    layout(location = 0)
-                                                    out
-                                                    vec4 color;
-                                                    uniform
-                                                    sampler2D tex;
-                                                    in
-                                                    vec2 uv;
-                                                    void main() {
-                                                        color = texture(tex, uv);
-                                                    }
-                                                );
-
 class OGL_API GLUtil {
 public:
     static string readFile(string file) {
@@ -93,27 +59,20 @@ public:
     static inline const string converShaderAuto(const string &src) {
         auto isVertexShader = src.find("gl_Position");
 
-        if (src.find("#version 330") != string::npos) {
+        auto isGL3 = src.find("in ") != string::npos || src.find("out ") != string::npos;
+        if (isGL3) {
 #if OGL_GLVERSION_330
-            return src;
+            return shader3To330(src);
 #elif OGL_GLVERSION_300_ES
-            return shader330ToES3(src, isVertexShader);
+            return shader3ToES3(src);
 #else
             return shader3To2(src, isVertexShader);
 #endif
-
-        } else if (src.find("#version 300 es") != string::npos) {
-#if OGL_GLVERSION_330
-            return shaderES3To330(src, isVertexShader);
-#elif OGL_GLVERSION_300_ES
-            return src;
-#else
-            return shader3To2(src, isVertexShader);
-#endif
-
         } else {
-#if OGL_GLVERSION_330 || OGL_GLVERSION_300_ES
-            return shader3To2(src, isVertexShader);
+#if OGL_GLVERSION_330
+            return shader2To330(src, isVertexShader);
+#elif OGL_GLVERSION_300_ES
+            return shader2ToES3(src, isVertexShader);
 #else
             return src;
 #endif
@@ -121,38 +80,29 @@ public:
     }
 
     static inline const string shader2ToES3(const string &src, bool isVertexShader = false) {
-        if (src.find("#version 300 es") != string::npos) {
-            return src;
-
-        } else if (src.find("#version 330") != string::npos) {
-            auto dst = string(src);
-            replaceAll(dst, "#version 330", "#version 300 es");
-            return dst;
-
-        } else return "#version 300 es\n" + shaderES2To3(src, isVertexShader);
+        return "#version 300 es\n" + shaderES2To3(src, isVertexShader);
     }
 
     static inline const string shader2To330(const string &src, bool isVertexShader = false) {
-        if (src.find("#version 330") != string::npos) {
-            return src;
-
-        } else if (src.find("#version 300 es") != string::npos) {
-            auto dst = string(src);
-            replaceAll(dst, "#version 300 es", "#version 330");
-            return dst;
-
-        } else return "#version 330\n" + shaderES2To3(src, isVertexShader);
+        return "#version 330\n" + shaderES2To3(src, isVertexShader);
     }
 
-    static inline const string shader330ToES3(const string &src, bool isVertexShader = false) {
+    static inline const string shader3ToES3(const string &src) {
         auto dst = string(src);
-        replaceAll(dst, "#version 330\n", "#version 300 es\n");
+
+        auto versionStart = dst.find("#version");
+        auto versionEnd = dst.find('\n', versionStart);
+        dst.replace(versionStart, versionEnd, "#version 300 es");
+
         return dst;
     }
 
-    static inline const string shaderES3To330(const string &src, bool isVertexShader = false) {
+    static inline const string shader3To330(const string &src) {
         auto dst = string(src);
-        replaceAll(dst, "#version 300 es\n", "#version 330\n");
+
+        auto versionStart = dst.find("#version");
+        auto versionEnd = dst.find('\n', versionStart);
+        dst.replace(versionStart, versionEnd, "#version 330");
         return dst;
     }
 
@@ -249,5 +199,30 @@ private:
         return dst;
     }
 };
+
+static const string passThroughVertexShader = GLUtil::converShaderAuto(string("#version 300 es\n") +
+                                              GLSTRING(
+                                                  precision
+                                                  highp float;
+                                                  in vec2 position;
+                                                  in vec2 coord;
+                                                  out vec2 uv;
+                                                  void main() {
+                                                      GLCHECK(gl_Position = vec4(position, 0., 1.));
+                                                      uv = coord;
+                                                  }
+                                              ));
+static const string passThroughFragmentShader = GLUtil::converShaderAuto(string("#version 300 es\n") +
+                                                GLSTRING(
+                                                    precision
+                                                    highp float;
+                                                    out vec4 color;
+                                                    uniform
+                                                    sampler2D tex;
+                                                    in vec2 uv;
+                                                    void main() {
+                                                        color = texture(tex, uv);
+                                                    }
+                                                ));
 
 OGL_NAMESPACE_END(ObjectiveGL)
