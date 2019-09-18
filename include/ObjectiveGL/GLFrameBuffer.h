@@ -181,7 +181,7 @@ public:
         }
     }
     
-    static shared_ptr<GLFrameBuffer> createWithCurrent(int width,int height) {
+    static shared_ptr<GLFrameBuffer> createWithCurrent(int width = 0,int height = 0) {
         GLint backendFrameBuffer = 0;
         glGetIntegerv(GL_FRAMEBUFFER_BINDING, &backendFrameBuffer);
         return shared_ptr<GLFrameBuffer>(new GLFrameBuffer(backendFrameBuffer,width,height));

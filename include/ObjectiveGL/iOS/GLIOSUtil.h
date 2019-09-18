@@ -6,6 +6,8 @@
 //  Copyright © 2019 Starfall. All rights reserved.
 //
 
+#include <GLKit/GLKit.h>
+#include "../GLPlatform.h"
 #include <OpenGLES/EAGL.h>
 #include "../GLContext.h"
 #include "../GLTexture.h"
