@@ -219,6 +219,7 @@ public:
 
     void setRenderBuffer(shared_ptr<GLRenderBuffer> renderBuffer) {
         colorTextures.clear();
+        this->renderBuffer = renderBuffer;
         OGL_SAVE_FRAMEBUFFER;
         GLCHECK(glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID));
         GLCHECK(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, renderBuffer->renderBufferID));
