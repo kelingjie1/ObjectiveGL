@@ -99,7 +99,7 @@ public:
 #elif OGL_GLVERSION_300_ES
             return shader330ToES3(src, isVertexShader);
 #else
-            return shader3To2(src, isVertextShader);
+            return shader3To2(src, isVertexShader);
 #endif
 
         } else if (src.find("#version 300 es") != string::npos) {
@@ -108,7 +108,7 @@ public:
 #elif OGL_GLVERSION_300_ES
             return src;
 #else
-            return shader3To2(src, isVertextShader);
+            return shader3To2(src, isVertexShader);
 #endif
 
         } else {
