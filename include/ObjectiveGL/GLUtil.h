@@ -91,8 +91,10 @@ public:
         auto dst = string(src);
 
         auto versionStart = dst.find("#version");
-        auto versionEnd = dst.find('\n', versionStart);
-        dst.replace(versionStart, versionEnd, "#version 300 es");
+        if (versionStart != string::npos) {
+            auto versionEnd = dst.find('\n', versionStart);
+            dst.replace(versionStart, versionEnd, "#version 300 es");
+        }
 
         return dst;
     }
@@ -101,8 +103,11 @@ public:
         auto dst = string(src);
 
         auto versionStart = dst.find("#version");
-        auto versionEnd = dst.find('\n', versionStart);
-        dst.replace(versionStart, versionEnd, "#version 330");
+        if (versionStart != string::npos) {
+            auto versionEnd = dst.find('\n', versionStart);
+            dst.replace(versionStart, versionEnd, "#version 330");
+        }
+
         return dst;
     }
 
