@@ -56,15 +56,23 @@ public:
         return 0;
     }
 
+#define GL_VERSION_330 "#version 330"
+#define GL_VERSION_300_ES "#version 300 es"
+#define GL_VERSION_200_ES ""
+
     static inline const string converShaderAuto(const string &src) {
         auto isVertexShader = src.find("gl_Position");
 
         auto isGL3 = src.find("in ") != string::npos || src.find("out ") != string::npos;
         if (isGL3) {
 #if OGL_GLVERSION_330
-            return shader3To330(src);
+            auto dst = string(src);
+            setShaderVersion(dst, GL_VERSION_330);
+            return dst;
 #elif OGL_GLVERSION_300_ES
-            return shader3ToES3(src);
+            auto dst = string(src);
+            setShaderVersion(dst, GL_VERSION_300_ES);
+            return dst;
 #else
             return shader3To2(src, isVertexShader);
 #endif
@@ -87,28 +95,17 @@ public:
         return "#version 330\n" + shaderES2To3(src, isVertexShader);
     }
 
-    static inline const string shader3ToES3(const string &src) {
-        auto dst = string(src);
+    static inline void setShaderVersion(string &src, const string &version) {
+        auto remove = version.empty();
 
-        auto versionStart = dst.find("#version");
+        auto versionStart = src.find("#version");
         if (versionStart != string::npos) {
-            auto versionEnd = dst.find('\n', versionStart);
-            dst.replace(versionStart, versionEnd, "#version 300 es");
+            auto versionEnd = src.find('\n', versionStart);
+            src.replace(versionStart, versionEnd - versionStart + (remove?1:0), version);
+
+        } else if (!remove) {
+            src.insert(0, version + '\n');
         }
-
-        return dst;
-    }
-
-    static inline const string shader3To330(const string &src) {
-        auto dst = string(src);
-
-        auto versionStart = dst.find("#version");
-        if (versionStart != string::npos) {
-            auto versionEnd = dst.find('\n', versionStart);
-            dst.replace(versionStart, versionEnd, "#version 330");
-        }
-
-        return dst;
     }
 
     /**
@@ -118,14 +115,14 @@ public:
      * @return
      */
     static inline const string shader3To2(const string &src, bool isVertexShader = false) {
-        if (src.find("#version 300 es") != string::npos || src.find("#version 330") != string::npos) {
+        auto isGL3 = src.find("in ") != string::npos || src.find("out ") != string::npos;
+        if (isGL3) {
             if (src.find("layout(") != string::npos) {
                 return string("not support layout conversion");
             }
 
             auto dst = string(src);
-            replaceAll(dst, "#version 300 es\n", "");
-            replaceAll(dst, "#version 330\n", "");
+            setShaderVersion(dst, "");
 
             if (isVertexShader) {
                 replaceAll(dst, "in ", "attribute ");
