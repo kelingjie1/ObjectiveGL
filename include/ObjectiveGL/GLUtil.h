@@ -58,10 +58,10 @@ public:
 
 #define GL_VERSION_330 "#version 330"
 #define GL_VERSION_300_ES "#version 300 es"
-#define GL_VERSION_200_ES ""
+#define GL_VERSION_2 ""
 
     static inline const string converShaderAuto(const string &src) {
-        auto isVertexShader = src.find("gl_Position");
+        auto isVertexShader = (src.find("gl_Position") != string::npos);
 
         auto isGL3 = src.find("in ") != string::npos || src.find("out ") != string::npos;
         if (isGL3) {
@@ -115,43 +115,37 @@ public:
      * @return
      */
     static inline const string shader3To2(const string &src, bool isVertexShader = false) {
-        auto isGL3 = src.find("in ") != string::npos || src.find("out ") != string::npos;
-        if (isGL3) {
-            if (src.find("layout(") != string::npos) {
-                return string("not support layout conversion");
-            }
+        if (src.find("layout(") != string::npos) {
+            return string("not support layout conversion");
+        }
 
-            auto dst = string(src);
-            setShaderVersion(dst, "");
+        auto dst = string(src);
+        setShaderVersion(dst, GL_VERSION_2);
 
-            if (isVertexShader) {
-                replaceAll(dst, "in ", "attribute ");
-                replaceAll(dst, "out ", "varying ");
-
-            } else {
-                replaceAll(dst, "in ", "varying ");
-                replaceAll(dst, "texture(", "texture2D(");
-
-#define OUT_KEYWORD "out vec4 "
-                auto outStart = dst.find(OUT_KEYWORD);
-                if (outStart == string::npos) return string(src);
-
-                auto outArgStart = outStart + strlen(OUT_KEYWORD);
-
-                auto outEnd = dst.find(';', outStart);
-                if (outEnd == string::npos) return string(src);
-
-                auto outArg = dst.substr(outArgStart, outEnd - outArgStart);
-
-                dst.replace(outStart, outEnd - outStart, "");
-                replaceAll(dst, outArg, "gl_FragColor");
-            }
-
-            return dst;
+        if (isVertexShader) {
+            replaceAll(dst, "in ", "attribute ");
+            replaceAll(dst, "out ", "varying ");
 
         } else {
-            return src;
+            replaceAll(dst, "in ", "varying ");
+            replaceAll(dst, "texture(", "texture2D(");
+
+#define OUT_KEYWORD "out vec4 "
+            auto outStart = dst.find(OUT_KEYWORD);
+            if (outStart == string::npos) return string(src);
+
+            auto outArgStart = outStart + strlen(OUT_KEYWORD);
+
+            auto outEnd = dst.find(';', outStart);
+            if (outEnd == string::npos) return string(src);
+
+            auto outArg = dst.substr(outArgStart, outEnd - outArgStart);
+
+            dst.replace(outStart, outEnd - outStart + 1, "");
+            replaceAll(dst, outArg, "gl_FragColor");
         }
+
+        return dst;
     }
 
 private:
