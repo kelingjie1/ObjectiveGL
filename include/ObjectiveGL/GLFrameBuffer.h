@@ -140,8 +140,7 @@ public:
     }
 };
 
-    
-class OGL_API GLFrameBuffer : public GLShareObject {
+class OGL_API GLFrameBuffer : public GLObject {
     friend class GLContext;
 
 protected:
