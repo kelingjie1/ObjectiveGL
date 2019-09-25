@@ -210,11 +210,9 @@ static const string passThroughVertexShader = GLUtil::converShaderAuto(string("#
                                               ));
 static const string passThroughFragmentShader = GLUtil::converShaderAuto(string("#version 300 es\n") +
                                                 GLSTRING(
-                                                    precision
-                                                    highp float;
+                                                    precision highp float;
                                                     out vec4 color;
-                                                    uniform
-                                                    sampler2D tex;
+                                                    uniform sampler2D tex;
                                                     in vec2 uv;
                                                     void main() {
                                                         color = texture(tex, uv);
