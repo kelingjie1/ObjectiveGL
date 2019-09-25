@@ -2,8 +2,7 @@ package com.objectivegl
 
 import android.Manifest
 import android.graphics.BitmapFactory
-import android.opengl.GLES20
-import android.opengl.GLSurfaceView
+import android.opengl.*
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v7.app.AppCompatActivity
@@ -17,6 +16,10 @@ import javax.microedition.khronos.opengles.GL10
 import kotlin.system.measureTimeMillis
 
 class MainActivity : AppCompatActivity(), GLSurfaceView.Renderer {
+    private lateinit var eglMainCtx: EGLContext
+    private lateinit var eglMainDsp: EGLDisplay
+    private lateinit var eglMainDrawSurface: EGLSurface
+    private lateinit var eglMainReadSurface: EGLSurface
     private var surfaceHeight: Int = 0
     private var surfaceWidth: Int = 0
     private lateinit var fastGrayProgram: GLProgram
@@ -41,36 +44,13 @@ class MainActivity : AppCompatActivity(), GLSurfaceView.Renderer {
     private fun normalDraw() {
         GLES20.glFinish()
         cost0 += measureTimeMillis {
-            grayProgram.setTexture("tex", texture)
-            fbo1.draw(grayProgram, vertexArray, glOpt, texture1)
+            for (i in 0 until 50) {
+                grayProgram.setTexture("tex", texture)
+                fbo1.draw(grayProgram, vertexArray, glOpt, texture1)
 
-            grayProgram.setTexture("tex", texture1)
-            fbo2.draw(grayProgram, vertexArray, glOpt, texture2)
-
-            grayProgram.setTexture("tex", texture2)
-            fbo1.draw(grayProgram, vertexArray, glOpt, texture1)
-
-            grayProgram.setTexture("tex", texture1)
-            fbo2.draw(grayProgram, vertexArray, glOpt, texture2)
-
-            grayProgram.setTexture("tex", texture2)
-            fbo1.draw(grayProgram, vertexArray, glOpt, texture1)
-
-            grayProgram.setTexture("tex", texture1)
-            fbo2.draw(grayProgram, vertexArray, glOpt, texture2)
-
-            grayProgram.setTexture("tex", texture2)
-            fbo1.draw(grayProgram, vertexArray, glOpt, texture1)
-
-            grayProgram.setTexture("tex", texture1)
-            fbo2.draw(grayProgram, vertexArray, glOpt, texture2)
-
-            grayProgram.setTexture("tex", texture2)
-            fbo1.draw(grayProgram, vertexArray, glOpt, texture1)
-
-            grayProgram.setTexture("tex", texture1)
-            fbo2.draw(grayProgram, vertexArray, glOpt, texture2)
-
+                grayProgram.setTexture("tex", texture1)
+                fbo1.draw(grayProgram, vertexArray, glOpt, texture)
+            }
             GLES20.glFinish()
         }
     }
@@ -80,61 +60,13 @@ class MainActivity : AppCompatActivity(), GLSurfaceView.Renderer {
         cost1 += measureTimeMillis {
             program.setTexture("tex", texture)
             fbo2.draw(program, vertexArray, glOpt, texture2)
-
-            fastGrayProgram.use()
-            vertexArray.apply(fastGrayProgram)
-            glOpt.apply()
-            GLES20.glDrawArrays(vertexArray.primitives, 0, vertexArray.vertexCount)
-            GLES20.glFlush()
-
-            fastGrayProgram.use()
-            vertexArray.apply(fastGrayProgram)
-            glOpt.apply()
-            GLES20.glDrawArrays(vertexArray.primitives, 0, vertexArray.vertexCount)
-            GLES20.glFlush()
-
-            fastGrayProgram.use()
-            vertexArray.apply(fastGrayProgram)
-            glOpt.apply()
-            GLES20.glDrawArrays(vertexArray.primitives, 0, vertexArray.vertexCount)
-            GLES20.glFlush()
-
-            fastGrayProgram.use()
-            vertexArray.apply(fastGrayProgram)
-            glOpt.apply()
-            GLES20.glDrawArrays(vertexArray.primitives, 0, vertexArray.vertexCount)
-            GLES20.glFlush()
-
-            fastGrayProgram.use()
-            vertexArray.apply(fastGrayProgram)
-            glOpt.apply()
-            GLES20.glDrawArrays(vertexArray.primitives, 0, vertexArray.vertexCount)
-            GLES20.glFlush()
-
-            fastGrayProgram.use()
-            vertexArray.apply(fastGrayProgram)
-            glOpt.apply()
-            GLES20.glDrawArrays(vertexArray.primitives, 0, vertexArray.vertexCount)
-            GLES20.glFlush()
-
-            fastGrayProgram.use()
-            vertexArray.apply(fastGrayProgram)
-            glOpt.apply()
-            GLES20.glDrawArrays(vertexArray.primitives, 0, vertexArray.vertexCount)
-            GLES20.glFlush()
-
-            fastGrayProgram.use()
-            vertexArray.apply(fastGrayProgram)
-            glOpt.apply()
-            GLES20.glDrawArrays(vertexArray.primitives, 0, vertexArray.vertexCount)
-            GLES20.glFlush()
-
-            fastGrayProgram.use()
-            vertexArray.apply(fastGrayProgram)
-            glOpt.apply()
-            GLES20.glDrawArrays(vertexArray.primitives, 0, vertexArray.vertexCount)
-            GLES20.glFlush()
-
+            for (i in 0 until 100) {
+                fastGrayProgram.use()
+                vertexArray.apply(fastGrayProgram)
+                glOpt.apply()
+                GLES20.glDrawArrays(vertexArray.primitives, 0, vertexArray.vertexCount)
+                GLES20.glFlush()
+            }
             GLES20.glFinish()
         }
     }
@@ -143,8 +75,39 @@ class MainActivity : AppCompatActivity(), GLSurfaceView.Renderer {
         fbFetchDraw()
         normalDraw()
 
-        cost00 += measureTimeMillis { runTest(0) }
-        cost11 += measureTimeMillis { runTest(1) }
+        GLES20.glFinish()
+        cost00 += measureTimeMillis {
+            runTest(0)
+            GLES20.glFinish()
+        }
+
+        GLES20.glFinish()
+        cost11 += measureTimeMillis {
+            runTest(1)
+            GLES20.glFinish()
+        }
+    }
+
+    private fun feedbackTest() {
+        cost0 += measureTimeMillis {
+            runTest(2)
+        }
+    }
+
+    private fun feedbackGrayScaleTest() {
+        cost0 += measureTimeMillis {
+            runTest(3)
+        }
+    }
+
+    override fun onDrawFrame(gl: GL10?) {
+        drawTest()
+
+        EGL14.eglMakeCurrent(eglMainDsp, eglMainDrawSurface, eglMainReadSurface, eglMainCtx)
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+        GLES20.glClearColor(1.0f, 1.0f, 0.0f, 1.0f)
+//        feedbackTest()
+//        feedbackGrayScaleTest()
 
         ++count
         if (count % 200 == 0) {
@@ -155,15 +118,6 @@ class MainActivity : AppCompatActivity(), GLSurfaceView.Renderer {
             cost1 = 0
             cost11 = 0
         }
-    }
-
-    private fun feedbackTest() {
-        runTest(2)
-    }
-
-    override fun onDrawFrame(gl: GL10?) {
-//        drawTest()
-        feedbackTest()
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
@@ -204,11 +158,27 @@ class MainActivity : AppCompatActivity(), GLSurfaceView.Renderer {
         init(null, 1)
     }
 
+    private fun feedbackGrayScaleInit() {
+        val bmp = BitmapFactory.decodeFile("/sdcard/_/0.jpg")
+
+        val buf = ByteBuffer.allocateDirect(bmp.byteCount).order(ByteOrder.nativeOrder())
+        bmp.copyPixelsToBuffer(buf)
+        init(buf, 2)
+    }
+
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         glView.renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
 
-//        drawInit()
-        feedbackInit()
+        eglMainCtx = EGL14.eglGetCurrentContext()
+        eglMainDsp = EGL14.eglGetCurrentDisplay()
+        eglMainDrawSurface = EGL14.eglGetCurrentSurface(EGL14.EGL_DRAW)
+        eglMainReadSurface = EGL14.eglGetCurrentSurface(EGL14.EGL_DRAW)
+
+        drawInit()
+
+        EGL14.eglMakeCurrent(eglMainDsp, eglMainDrawSurface, eglMainReadSurface, eglMainCtx)
+//        feedbackInit()
+//        feedbackGrayScaleInit()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
